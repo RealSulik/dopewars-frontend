@@ -116,6 +116,8 @@ export default function App() {
         className="min-h-screen bg-cover bg-center bg-fixed flex items-center justify-center p-4"
         style={{ backgroundImage: `url(${backgroundUrl})` }}
       >
+
+
         <div className="w-full max-w-7xl mx-auto">
           {/* Pre-game screen */}
           {!inGame && (

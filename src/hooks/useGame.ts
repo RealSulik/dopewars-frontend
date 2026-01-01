@@ -1,7 +1,6 @@
 // src/hooks/useGame.ts
 import { useState, useCallback } from "react";
 import { ethers } from "ethers";
-import { CONTRACT_ADDRESS, CONTRACT_ABI } from "../config";
 
 const API_BASE = "https://dopewars-backend.vercel.app/api";
 // const API_BASE = "http://localhost:3000/api"; // For local testing
