@@ -1,39 +1,48 @@
 import { useEffect, useState } from "react";
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "../config";
-import { ethers } from "ethers";
+
+type LeaderboardRow = {
+  player_address: string;
+  best_net_worth: number;
+  total_ice: number;
+};
 
 export default function LeaderboardModal({ onClose }: { onClose: () => void }) {
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<LeaderboardRow[]>([]);
   const [tab, setTab] = useState<"ice" | "score">("ice");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    load();
-  }, []);
+    load(tab);
+  }, [tab]);
 
-  async function load() {
+  async function load(currentTab: "ice" | "score") {
     try {
       setLoading(true);
-      const provider = new ethers.JsonRpcProvider("https://mainnet.base.org");
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
 
-      // For now, just show placeholder data since we don't have blockchain data yet
-      // In the session-based system, data only goes to blockchain on settlement
-      
-      // You can implement this later to read from your backend API instead:
-      // const response = await fetch('https://dopewars-backend.vercel.app/api/leaderboard');
-      // const data = await response.json();
-      
-      setRows([]);
-      setLoading(false);
+      const sortBy =
+        currentTab === "ice" ? "total_ice" : "best_net_worth";
+
+      const res = await fetch(
+        `/api/leaderboard?sortBy=${sortBy}&limit=100`
+      );
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error("Failed to load leaderboard");
+      }
+
+      setRows(data.leaderboard || []);
     } catch (e) {
-      console.error('Leaderboard error:', e);
+      console.error("Leaderboard error:", e);
+      setRows([]);
+    } finally {
       setLoading(false);
     }
   }
 
-  function short(a: string) {
-    return a.slice(0, 6) + "..." + a.slice(-4);
+  function short(addr: string) {
+    return addr.slice(0, 6) + "..." + addr.slice(-4);
   }
 
   return (
@@ -49,13 +58,17 @@ export default function LeaderboardModal({ onClose }: { onClose: () => void }) {
         <div className="flex gap-4 mb-6">
           <button
             onClick={() => setTab("ice")}
-            className={`px-3 py-1 rounded ${tab === "ice" ? "bg-purple-600" : "bg-gray-700"}`}
+            className={`px-3 py-1 rounded ${
+              tab === "ice" ? "bg-purple-600" : "bg-gray-700"
+            }`}
           >
             Total ICE
           </button>
           <button
             onClick={() => setTab("score")}
-            className={`px-3 py-1 rounded ${tab === "score" ? "bg-purple-600" : "bg-gray-700"}`}
+            className={`px-3 py-1 rounded ${
+              tab === "score" ? "bg-purple-600" : "bg-gray-700"
+            }`}
           >
             Best Runs
           </button>
@@ -63,25 +76,29 @@ export default function LeaderboardModal({ onClose }: { onClose: () => void }) {
 
         <div className="max-h-[400px] overflow-y-auto space-y-2">
           {loading ? (
-            <div className="text-center py-8 text-gray-400">Loading...</div>
+            <div className="text-center py-8 text-gray-400">
+              Loading...
+            </div>
           ) : rows.length === 0 ? (
             <div className="text-center py-8 text-gray-400">
-              No leaderboard data yet. Complete a game run and settle to appear on the leaderboard!
+              No leaderboard data yet.
             </div>
           ) : (
-            rows
-              .sort((a, b) => (tab === "ice" ? b.ice - a.ice : b.best - a.best))
-              .slice(0, 20)
-              .map((row, idx) => (
-                <div key={row.addr} className="flex justify-between bg-gray-800 p-2 rounded">
-                  <div>
-                    #{idx + 1} {short(row.addr)}
-                  </div>
-                  <div>
-                    {tab === "ice" ? `${row.ice.toLocaleString()} ICE` : `$${row.best.toLocaleString()}`}
-                  </div>
+            rows.slice(0, 20).map((row, idx) => (
+              <div
+                key={row.player_address}
+                className="flex justify-between bg-gray-800 p-2 rounded"
+              >
+                <div>
+                  #{idx + 1} {short(row.player_address)}
                 </div>
-              ))
+                <div>
+                  {tab === "ice"
+                    ? `${row.total_ice.toLocaleString()} ICE`
+                    : `$${row.best_net_worth.toLocaleString()}`}
+                </div>
+              </div>
+            ))
           )}
         </div>
       </div>
