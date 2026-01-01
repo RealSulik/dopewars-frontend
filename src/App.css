@@ -1,0 +1,579 @@
+/* Tailwind directives MUST be first */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================
+   BASE TYPOGRAPHY
+   ========================= */
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: #f9fafb;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+/* slightly smaller main title */
+h1 {
+  font-size: 2.3rem;
+}
+
+/* =========================
+   PANELS (Glass)
+   ========================= */
+
+.backpanel {
+background: linear-gradient(
+  135deg,
+  rgba(40, 60, 100, 0.25) 0%,
+  rgba(20, 30, 50, 0.35) 100%
+) !important;
+  backdrop-filter: blur(12px);
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  box-shadow:
+    0 0 22px rgba(0, 0, 0, 0.28),
+    inset 0 0 18px rgba(255, 255, 255, 0.05);
+  padding: 1.25rem;
+}
+
+.backpanel + .backpanel {
+  margin-top: 1rem;
+}
+
+/* =========================
+   NEON CAPSULE BUTTONS
+   ========================= */
+
+.neon-button {
+  position: relative;
+  border-radius: 9999px;
+  padding: 0.6rem 1.25rem;
+  background: rgba(2, 6, 23, 0.8);
+  color: #f9fafb;
+  letter-spacing: 0.02em;
+  transition:
+    box-shadow 0.18s ease,
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+/* BUY Glow - Emerald */
+.neon-button--buy {
+  border-color: rgba(16, 185, 129, 0.65);
+  box-shadow:
+    0 0 8px rgba(16, 185, 129, 0.5),
+    0 0 24px rgba(16, 185, 129, 0.45);
+}
+
+.neon-button--buy:hover:not(:disabled) {
+  box-shadow:
+    0 0 12px rgba(16, 185, 129, 0.9),
+    0 0 32px rgba(16, 185, 129, 0.55);
+  transform: translateY(-1px);
+}
+
+/* SELL Glow - Neon Red */
+.neon-button--sell {
+  border-color: rgba(239, 68, 68, 0.75);
+  box-shadow:
+    0 0 8px rgba(239, 68, 68, 0.55),
+    0 0 26px rgba(239, 68, 68, 0.48);
+}
+
+.neon-button--sell:hover:not(:disabled) {
+  box-shadow:
+    0 0 12px rgba(239, 68, 68, 1),
+    0 0 36px rgba(239, 68, 68, 0.65);
+  transform: translateY(-1px);
+}
+
+/* Disabled neon */
+.neon-button--disabled {
+  background: rgba(2, 6, 23, 0.55);
+  border-color: rgba(148, 163, 184, 0.35);
+  box-shadow: none;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =========================
+   EVENT PANEL GLOWS
+   ========================= */
+
+.event-panel {
+  transition:
+    box-shadow 0.4s ease,
+    border-color 0.4s ease,
+    background 0.4s ease;
+}
+
+.event-panel--neutral {
+  border-color: rgba(139, 92, 246, 0.7);
+  box-shadow:
+    0 0 14px rgba(139, 92, 246, 0.5),
+    0 0 45px rgba(139, 92, 246, 0.25);
+}
+
+.event-panel--win {
+  border-color: rgba(34, 197, 94, 0.85);
+  box-shadow:
+    0 0 16px rgba(34, 197, 94, 0.7),
+    0 0 50px rgba(34, 197, 94, 0.35);
+}
+
+.event-panel--loss {
+  border-color: rgba(239, 68, 68, 0.9);
+  box-shadow:
+    0 0 18px rgba(239, 68, 68, 0.7),
+    0 0 55px rgba(239, 68, 68, 0.35);
+}
+
+/* =========================
+   SMALL TIGHTENING TWEAKS
+   ========================= */
+
+.grid {
+  gap: 0.75rem;
+}
+
+.list-disc li {
+  font-size: 0.9rem;
+}
+
+button {
+  font-weight: 600;
+}
+
+/* ===== Micro FX Pack ===== */
+
+.hud-animate {
+  animation: hudFade 0.7s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes hudFade {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hud-pulse {
+  animation: hudPulse 4s ease-in-out infinite;
+}
+
+@keyframes hudPulse {
+  0%   { box-shadow: 0 0 8px rgba(150,0,255,0.25); }
+  50%  { box-shadow: 0 0 14px rgba(150,0,255,0.45); }
+  100% { box-shadow: 0 0 8px rgba(150,0,255,0.25); }
+}
+
+.ice-flash {
+  animation: iceFlash 0.6s ease-out;
+}
+
+@keyframes iceFlash {
+  0%   { color: #ffffff; text-shadow: 0 0 8px rgba(180,0,255,0.7); }
+  40%  { color: #c084fc; text-shadow: 0 0 18px rgba(180,0,255,0.9); }
+  100% { color: #c084fc; text-shadow: none; }
+}
+
+/* ========== NEON / CYBER FX PACK ========== */
+
+.cyber-card {
+  position: relative;
+  animation: cyber-glow 3s ease-in-out infinite;
+}
+
+@keyframes cyber-glow {
+  0%, 100% { box-shadow: 0 0 6px rgba(0,255,255,0.4), 0 0 12px rgba(0,255,255,0.15); }
+  50% { box-shadow: 0 0 14px rgba(0,255,255,0.65), 0 0 25px rgba(0,255,255,0.25); }
+}
+
+.cyber-card:hover {
+  box-shadow: inset 0 0 12px rgba(0,255,255,0.5), 
+              0 0 14px rgba(0,255,255,0.45);
+}
+
+
+.cyber-scanlines {
+  position: relative;
+}
+
+.cyber-scanlines::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.06),
+    rgba(255,255,255,0.06) 1px,
+    transparent 2px,
+    transparent 3px
+  );
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+.crt {
+  filter: contrast(1.05) saturate(1.1);
+}
+
+.neon-flicker {
+  transition: text-shadow 0.3s ease-in-out;
+}
+
+.neon-flicker--active {
+  text-shadow:
+    0 0 6px rgba(255,255,255,0.8),
+    0 0 12px rgba(120,41,255,0.7),
+    0 0 20px rgba(120,41,255,0.9),
+    0 0 32px rgba(120,41,255,1);
+}
+
+.cyber-sweep {
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-sweep::after {
+  content: "";
+  position: absolute;
+  top: -120%;
+  left: -50%;
+  width: 200%;
+  height: 330%;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(255,255,255,0.2) 50%,
+    transparent 100%
+  );
+  transform: rotate(12deg);
+  transition: 0.7s;
+}
+
+.cyber-sweep:hover::after {
+  top: -10%;
+  left: -30%;
+}
+
+.cyber-trace {
+  background-image: linear-gradient(135deg, transparent 80%, rgba(0,255,255,0.45));
+  background-size: 300% 300%;
+  animation: cyber-trace-move 9s linear infinite;
+}
+
+@keyframes cyber-trace-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.neon-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 14px rgba(0,255,200,0.7);
+}
+
+.neon-button::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0ff, #a0f);
+  filter: blur(6px);
+  opacity: 0.55;
+  z-index: -1;
+}
+
+.neon-button--disabled {
+  opacity: 0.3 !important;
+  box-shadow: none !important;
+}
+
+.holo-noise {
+  position: relative;
+  overflow: hidden;
+}
+
+.holo-noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background-image: repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.03) 0px,
+      rgba(255,255,255,0.00) 2px,
+      rgba(255,255,255,0.02) 4px
+    ),
+    url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIW2N88uTJfwAJswP8qZ6kWQAAAABJRU5ErkJggg==");
+
+  opacity: 0.18;
+  mix-blend-mode: screen;
+}
+
+/* ===== Event Popup ===== */
+
+.event-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  animation: popupFade 0.3s ease-out;
+}
+
+.event-popup {
+  background: rgba(10,10,20,0.8);
+  border: 2px solid rgba(150,0,255,0.6);
+  border-radius: 12px;
+  padding: 16px;
+  max-width: 70%;
+  box-shadow: 0 0 20px rgba(150,0,255,0.5);
+  animation: popupZoom 0.35s ease-out;
+}
+
+.event-img {
+  width:100%;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.event-msg {
+  font-size:20px;
+  text-align:center;
+  color:white;
+}
+
+@keyframes popupFade {
+  from {opacity:0;}
+  to   {opacity:1;}
+}
+
+@keyframes popupZoom {
+  from {transform:scale(0.8);}
+  to   {transform:scale(1);}
+}
+
+/* Loading chip */
+.loading-chip {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  padding: 6px 12px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(150,0,255,0.4);
+  border-radius: 8px;
+  color: #eee;
+  font-size: 12px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  animation: fadeSlide 0.3s ease-out;
+}
+
+.loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgb(150,0,255);
+  animation: pulse 1.1s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+ 100% { opacity: 0.3; }
+}
+
+@keyframes fadeSlide {
+ from { opacity:0; transform: translateY(-6px); }
+ to   { opacity:1; transform: translateY(0); }
+}
+
+.neon-glow-lg {
+  box-shadow: 0 0 40px rgba(150, 0, 255, 0.7);
+}
+
+@keyframes fadeIn {
+  from { opacity:0; transform: translateY(15px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.neon-text-glow {
+  text-shadow:
+    0 0 6px rgba(159, 74, 255, 0.7),
+    0 0 15px rgba(159, 74, 255, 0.6),
+    0 0 30px rgba(159, 74, 255, 0.4);
+}
+
+/* === Trade Quantity Input === */
+
+input:focus {
+  outline: none;
+  border: 2px solid rgba(128,0,255,0.7);
+  box-shadow: 0 0 6px rgba(128,0,255,0.8);
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  appearance: textfield;
+  text-align: center;
+}
+
+.trade-qty {
+  width: 50px;
+  height: 24px;
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  text-align: center;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.9);
+  color: #000;
+  border: 1px solid rgba(128,0,255,0.4);
+}
+
+.trade-qty:focus {
+  border-color: rgba(128,0,255,0.8);
+  box-shadow: 0 0 6px rgba(128,0,255,0.8);
+  outline: none;
+}
+
+.trade-qty::-webkit-inner-spin-button,
+.trade-qty::-webkit-outer-spin-button {
+  appearance: auto;
+  opacity: 0.9;
+}
+
+input[type=number] {
+  appearance: auto;
+}
+
+/* ======================================================
+   >>> SINGLE CLEAN MOBILE BLOCK
+   ====================================================== */
+
+@media (max-width: 640px) {
+
+  /* reduce padding */
+  body, .min-h-screen {
+    padding: 0 !important;
+  }
+
+  /* collapse columns */
+  .flex.gap-4 {
+    flex-direction: column !important;
+  }
+
+  /* Inventory items go full width */
+  .inventory-grid {
+  grid-template-columns: 1fr !important;
+}
+
+  /* tighten card padding */
+  .backpanel.cyber-card {
+    padding: 8px !important;
+  }
+/* ⚠️ NEW: Override ONLY inventory cards for more room */
+  .inventory-card {
+    padding: 16px !important;   /* or 20px if you want */
+  }
+
+
+
+  /* center all titles */
+  h1, h2, .text-center {
+    text-align: center !important;
+  }
+
+  /* smaller fonts */
+  h1 { font-size: 1.7rem !important; }
+  h2 { font-size: 1.2rem !important; }
+  p, li, button { font-size: .9rem !important; }
+
+  /* Buy/Sell buttons */
+  .neon-button {
+    padding: 6px 12px !important;
+    font-size: .8rem !important;
+  }
+
+  /* HUD columns */
+  .flex.justify-between {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  /* backpanels tighter */
+  .backpanel {
+    padding: 12px !important;
+    margin-bottom: 12px !important;
+  }
+}
+/* fix card border clipping */
+@media (min-width: 640px) {
+  .cyber-card {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+    overflow: visible !important;
+  }
+}
+
+/* marquee */
+@keyframes priceMarquee {
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(-200%); }
+}
+
+.animate-price-marquee {
+  animation: priceMarquee 34s linear infinite;
+}
+
+/* different chip look (not a button) */
+.price-chip {
+  background: linear-gradient(
+    135deg,
+    rgba(255,120,0,0.20) 0%,
+    rgba(255,60,0,0.25) 100%
+  );
+  border: 1px solid rgba(255,180,140,0.35);
+  box-shadow:
+    0 0 8px rgba(255,120,0,0.4),
+    inset 0 0 6px rgba(20,10,0,0.3);
+  color: #fff;
+  backdrop-filter: blur(6px);
+}
+.price-chip {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 120, 0.15),
+    rgba(0, 120, 60, 0.25)
+  ) !important;
+
+  border: 1px solid rgba(0, 255, 120, 0.35) !important;
+
+  box-shadow:
+    0 0 8px rgba(0, 255, 140, 0.25),
+    inset 0 0 10px rgba(0, 255, 150, 0.15);
+
+  color: #caffda !important; /* soft mint text */
+}
