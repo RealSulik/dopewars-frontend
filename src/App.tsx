@@ -131,15 +131,6 @@ export default function App() {
       ? "event-panel--win"
       : "event-panel--neutral";
 
-  // Mock daily claim for old UI compatibility (not used in session version)
-  const canClaim = true;
-  const remainingClaim = 0;
-  function formatTime(seconds: number) {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    return `${h}h ${m}m`;
-  }
-
   const safeInventory = inventory ?? [];
 
   return (
@@ -303,7 +294,7 @@ export default function App() {
                           disabled={loading}
                           className="px-3 py-0.5 rounded text-xs font-semibold neon-button cyber-sweep"
                         >
-                          Claim
+                          Claim Daily ICE
                         </button>
                       </div>
                     </div>
