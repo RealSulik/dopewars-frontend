@@ -98,17 +98,16 @@ export function useGame() {
       const activateData = await activateResponse.json();
       
       if (!activateData.success) {
-        throw new Error(activateData.error || "Failed to activate session");
+        throw new Error(activateData.error || "Invalid signature");
       }
 
+      console.log("✅ Session started");
       setSessionActive(true);
-      console.log("✅ Session activated!");
       
       // Refresh game state
       await refreshGameState();
       
     } catch (err: any) {
-      console.error("❌ startSession error:", err);
       showError(err.message || "Failed to start session");
     } finally {
       setLoading(false);
@@ -121,11 +120,15 @@ export function useGame() {
     if (!wallet) return;
 
     try {
-      const response = await fetch(`${API_BASE}/game/state?playerAddress=${wallet}`);
+      const response = await fetch(
+        `${API_BASE}/game/state?playerAddress=${wallet}`
+      );
+      
       const data = await response.json();
 
       if (!data.success || !data.gameState) {
-        console.warn("No active game found");
+        setSessionActive(false);
+        setPlayerData(null);
         return;
       }
 
@@ -133,20 +136,24 @@ export function useGame() {
       
       setPlayerData({
         cash: state.cash,
-        debt: state.debt,
-        bankBalance: state.bankBalance,
-        health: state.health,
-        hasGun: state.hasGun,
-        trenchcoatCapacity: state.trenchcoatCapacity,
-        coatUpgrades: state.coatUpgrades,
         location: state.location,
+        daysPlayed: state.daysPlayed,
+        lastEventDescription: state.lastEventDescription,
         netWorthGoal: state.netWorthGoal,
         currentNetWorth: state.currentNetWorth,
-        daysPlayed: state.daysPlayed,
-        lastEventDescription: state.lastEventDescription || "",
-        hustlesUsed: state.hustlesUsed,
-        stashesUsed: state.stashesUsed,
-        status: state.status,
+        
+        // V2 fields
+        debt: state.debt,
+        bankBalance: state.bankBalance,
+        trenchcoatCapacity: state.trenchcoatCapacity,
+        health: state.health,
+        hasGun: state.hasGun,
+        coatUpgrades: state.coatUpgrades,
+        
+        // NEW: Event flags
+        copEncounterPending: state.copEncounterPending,
+        coatOfferPending: state.coatOfferPending,
+        wonAtDay: state.wonAtDay, // NEW: Track when won
       });
 
       // Build inventory
@@ -199,6 +206,12 @@ export function useGame() {
       const data = await response.json();
 
       if (!data.success) {
+        // Check if game must settle (day 30 reached)
+        if (data.mustSettle) {
+          showError("⚠️ Day 30 reached! You must settle your game now.");
+          await refreshGameState();
+          return;
+        }
         throw new Error(data.error || "Action failed");
       }
 
@@ -245,15 +258,19 @@ export function useGame() {
         console.log("Settlement confirmed:", receipt);
       }
 
+      // Show settlement results
+      const resultMessage = data.didWin 
+        ? `🎉 YOU WON at Day ${data.wonAtDay}!\nFinal: $${data.finalNetWorth.toLocaleString()}\nICE Earned: ${data.iceAwarded}\nTotal ICE: ${data.totalIce}`
+        : `Game Over!\nFinal: $${data.finalNetWorth.toLocaleString()}\nICE Earned: ${data.iceAwarded}\nTotal ICE: ${data.totalIce}`;
+      
+      alert(resultMessage);
+
       // Reset session
       setSessionActive(false);
       setPlayerData(null);
       setInventory([]);
       setPrices([]);
-      
-      // Refresh ICE
-      await refreshGameState();
-      
+
     } catch (err: any) {
       showError(err.message || "Settlement failed");
     } finally {
@@ -279,9 +296,9 @@ export function useGame() {
     // Original game actions
     endDay: () => sendAction("Ending day...", "endDay"),
     buy: (drugIndex: number, amount: number) => 
-      sendAction("Buying...", "buyDrug", { drugIndex, amount }),
+      sendAction("Buying...", "buy", { drugIndex, amount }),
     sell: (drugIndex: number, amount: number) => 
-      sendAction("Selling...", "sellDrug", { drugIndex, amount }),
+      sendAction("Selling...", "sell", { drugIndex, amount }),
     hustle: () => sendAction("Hustling...", "hustle"),
     stash: () => sendAction("Stashing...", "stash"),
     claimDailyIce: () => sendAction("Claiming ICE...", "claimDailyIce"),
@@ -296,8 +313,13 @@ export function useGame() {
     payLoan: (amount: number) =>
       sendAction("Paying loan...", "payLoan", { amount }),
     
-    // NEW: Upgrade actions
-    upgradeCoat: () => sendAction("Upgrading coat...", "upgradeCoat"),
+    // NEW: Coat upgrade actions (random offer mechanic!)
+    acceptCoatOffer: () => 
+      sendAction("Accepting coat upgrade...", "acceptCoatOffer"),
+    declineCoatOffer: () => 
+      sendAction("Declining coat upgrade...", "declineCoatOffer"),
+    
+    // NEW: Upgrade actions (keeping gun for now, should be random offer later)
     buyGun: () => sendAction("Buying gun...", "buyGun"),
     
     // NEW: Combat actions

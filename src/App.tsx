@@ -51,14 +51,17 @@ export default function App() {
     buy,
     sell,
     
-    // V2 ACTIONS - All being used!
+    // V2 ACTIONS
     depositBank,
     withdrawBank,
     payLoan,
-    upgradeCoat,
     buyGun,
     fightCop,
     runFromCop,
+    
+    // NEW: Coat upgrade actions (random offer mechanic!)
+    acceptCoatOffer,
+    declineCoatOffer,
   } = useGame();
 
   const [showLeaderboard, setShowLeaderboard] = useState(false);
@@ -76,6 +79,12 @@ export default function App() {
   
   // Cop encounter modal
   const [showCopModal, setShowCopModal] = useState(false);
+  
+  // NEW: Coat offer modal
+  const [showCoatOfferModal, setShowCoatOfferModal] = useState(false);
+  
+  // NEW: Day 30 settlement prompt
+  const [showDay30Modal, setShowDay30Modal] = useState(false);
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
 
@@ -99,7 +108,6 @@ export default function App() {
     if (ev.includes("mugged") || ev.includes("robbed")) img = "/events/mugged.png";
     else if (ev.includes("police") || ev.includes("busted") || ev.includes("officer hardass")) {
       img = "/events/police.png";
-      setShowCopModal(true); // Show cop encounter choice
     }
     else if (ev.includes("stash") || ev.includes("found")) img = "/events/stash.png";
     else if (ev.includes("ice")) img = "/events/ice.png";
@@ -112,6 +120,27 @@ export default function App() {
 
     setTimeout(() => setShowPopup(false), 5000);
   }, [playerData?.lastEventDescription]);
+
+  // NEW: Coat offer modal trigger
+  useEffect(() => {
+    if (playerData?.coatOfferPending) {
+      setShowCoatOfferModal(true);
+    }
+  }, [playerData?.coatOfferPending]);
+
+  // NEW: Cop encounter modal trigger
+  useEffect(() => {
+    if (playerData?.copEncounterPending) {
+      setShowCopModal(true);
+    }
+  }, [playerData?.copEncounterPending]);
+
+  // NEW: Day 30 settlement trigger
+  useEffect(() => {
+    if (playerData?.daysPlayed >= 30 && sessionActive) {
+      setShowDay30Modal(true);
+    }
+  }, [playerData?.daysPlayed, sessionActive]);
 
   const inGame = wallet && sessionActive && playerData && playerData.netWorthGoal > 0;
   const days = playerData?.daysPlayed ?? 0;
@@ -127,7 +156,7 @@ export default function App() {
 
   const locIndex = playerData?.location ?? -1;
   const locationName = locIndex >= 0 ? CITY_NAMES[locIndex] : "Unknown";
-  const backgroundFile = locIndex >= 0 ? `/backgrounds/${CITY_FILES[locIndex]}` : "";
+  const backgroundFile = locIndex >= 0 ? `/cities/${CITY_FILES[locIndex]}` : ""; // FIXED: Correct path
 
   const safeInventory = Array.isArray(inventory) && inventory.length > 0
     ? inventory
@@ -208,6 +237,21 @@ export default function App() {
     setLoanAmount("");
   };
 
+  // NEW: Coat offer handlers
+  const handleAcceptCoatOffer = async () => {
+    if (cash < 5000) {
+      alert("Not enough cash! Need $5,000");
+      return;
+    }
+    await acceptCoatOffer();
+    setShowCoatOfferModal(false);
+  };
+
+  const handleDeclineCoatOffer = async () => {
+    await declineCoatOffer();
+    setShowCoatOfferModal(false);
+  };
+
   return (
     <>
       <div
@@ -224,7 +268,7 @@ export default function App() {
         <div className="relative z-10 mx-auto px-2 sm:px-4 py-4">
           {errorMessage && (
             <div className="p-2 mb-4 bg-red-600 text-center font-semibold rounded animate-fadeIn cyber-card">
-              ⚠ {errorMessage}
+              âš  {errorMessage}
             </div>
           )}
 
@@ -322,7 +366,7 @@ export default function App() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-400 mb-1">Space: {totalDrugs}/{capacity} {hasGun && '🔫'}</div>
+                    <div className="text-xs text-gray-400 mb-1">Space: {totalDrugs}/{capacity} {hasGun && 'ðŸ”«'}</div>
                     <div className="w-full bg-gray-700 rounded-full h-2">
                       <div 
                         className={`h-2 rounded-full ${totalDrugs / capacity < 0.8 ? 'bg-blue-500' : 'bg-orange-500'}`}
@@ -338,7 +382,7 @@ export default function App() {
                 <div className="px-2 mb-3">
                   <div className="backpanel cyber-card cyber-scanlines cyber-trace px-3 py-3 flex flex-col items-center gap-2 text-center">
                     <p className="text-sm font-semibold opacity-90">
-                      {locationName} · Day {days} {hasGun && '🔫'}
+                      {locationName} Â· Day {days} {hasGun && 'ðŸ”«'}
                     </p>
                     <div className="flex items-center justify-center gap-2 text-xs">
                       <span className="font-semibold">ICE: {ice}</span>
@@ -357,7 +401,7 @@ export default function App() {
                   <div className="flex-1 p-3">
                     <div className="backpanel cyber-card cyber-scanlines cyber-trace text-center px-2 py-2 h-[64px] flex items-center justify-center">
                       <p className="text-sm font-semibold opacity-90">
-                        {locationName} · Day {days}
+                        {locationName} Â· Day {days}
                       </p>
                     </div>
                   </div>
@@ -531,7 +575,7 @@ export default function App() {
                       disabled={loading}
                       className="px-5 py-2 rounded font-semibold neon-button cyber-sweep bg-blue-600"
                     >
-                      🌙 End Day
+                      ðŸŒ™ End Day
                     </button>
                     <button
                       onClick={hustle}
@@ -543,7 +587,7 @@ export default function App() {
                           : "bg-gray-700 opacity-60 cursor-not-allowed"
                       }`}
                     >
-                      💪 Hustle (0/3)
+                      ðŸ’ª Hustle (0/3)
                     </button>
                     <button
                       onClick={stash}
@@ -555,7 +599,7 @@ export default function App() {
                           : "bg-gray-700 opacity-60 cursor-not-allowed"
                       }`}
                     >
-                      🎲 Find Stash (0/3)
+                      ðŸŽ² Find Stash (0/3)
                     </button>
                     <button
                       onClick={settleGame}
@@ -594,7 +638,7 @@ export default function App() {
                   {/* BANK & LOAN PANEL */}
                   <div className="p-4 backpanel cyber-card cyber-scanlines cyber-trace">
                     <h2 className="text-lg font-bold mb-2 text-center neon-flicker">
-                      💰 Bank & Loan
+                      ðŸ’° Bank & Loan
                     </h2>
                     <div className="flex flex-col gap-2">
                       <button
@@ -605,7 +649,7 @@ export default function App() {
                         disabled={loading || cash === 0}
                         className="px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-green-700"
                       >
-                        💵 Deposit to Bank
+                        ðŸ’µ Deposit to Bank
                       </button>
                       <button
                         onClick={() => {
@@ -615,14 +659,14 @@ export default function App() {
                         disabled={loading || bankBalance === 0}
                         className="px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-blue-700"
                       >
-                        💸 Withdraw from Bank
+                        ðŸ’¸ Withdraw from Bank
                       </button>
                       <button
                         onClick={() => setShowLoanModal(true)}
                         disabled={loading || cash === 0 || debt === 0}
                         className="px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-red-700"
                       >
-                        💳 Pay Loan
+                        ðŸ’³ Pay Loan
                       </button>
                     </div>
                   </div>
@@ -633,16 +677,18 @@ export default function App() {
                       🛠️ Upgrades
                     </h2>
                     <div className="flex flex-col gap-2">
-                      <button
-                        onClick={upgradeCoat}
-                        disabled={loading || cash < 5000}
-                        className="px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-purple-700"
-                        title="Cost: $5,000 - Adds 50 space"
-                      >
-                        🎒 Upgrade Coat (Lv{coatUpgrades})
-                      </button>
-                      <div className="text-xs text-center opacity-80">
-                        Cost: $5,000 (+50 space)
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="text-sm font-semibold text-purple-400">
+                          🧥 Coat Capacity: {capacity}
+                        </div>
+                        {playerData?.coatOfferPending && (
+                          <div className="text-xs text-yellow-400 animate-pulse">
+                            ⭐ Upgrade offer available!
+                          </div>
+                        )}
+                        <div className="text-xs text-center opacity-60">
+                          Upgrades are rare random offers during travel
+                        </div>
                       </div>
                       
                       <button
@@ -682,7 +728,7 @@ export default function App() {
                       Travel
                     </h2>
                     <div className="text-xs opacity-80 mb-2 text-center">
-                      ⚠️ Travel ends the day (+interest)
+                      âš ï¸ Travel ends the day (+interest)
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-xs md:grid-cols-2">
                       {CITY_NAMES.map((city, i) => (
@@ -712,7 +758,7 @@ export default function App() {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4">
             <h2 className="text-2xl font-bold mb-4 neon-flicker">
-              {bankAction === 'deposit' ? '💵 Deposit to Bank' : '💸 Withdraw from Bank'}
+              {bankAction === 'deposit' ? 'ðŸ’µ Deposit to Bank' : 'ðŸ’¸ Withdraw from Bank'}
             </h2>
             <div className="mb-4">
               <p className="text-sm opacity-80 mb-2">
@@ -755,7 +801,7 @@ export default function App() {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4">
             <h2 className="text-2xl font-bold mb-4 neon-flicker">
-              💳 Pay Loan
+              ðŸ’³ Pay Loan
             </h2>
             <div className="mb-4">
               <p className="text-sm opacity-80 mb-2">
@@ -799,7 +845,7 @@ export default function App() {
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4 border-2 border-red-500">
             <h2 className="text-3xl font-bold mb-4 neon-flicker text-red-400">
-              🚨 OFFICER HARDASS! 🚨
+              ðŸš¨ OFFICER HARDASS! ðŸš¨
             </h2>
             <p className="text-lg mb-6 text-center">
               You've been spotted! What do you do?
@@ -812,7 +858,7 @@ export default function App() {
                 }}
                 className="flex-1 px-4 py-3 rounded neon-button cyber-sweep bg-red-700 text-lg font-bold"
               >
-                ⚔️ Fight!
+                âš”ï¸ Fight!
               </button>
               <button
                 onClick={() => {
@@ -821,11 +867,106 @@ export default function App() {
                 }}
                 className="flex-1 px-4 py-3 rounded neon-button cyber-sweep bg-yellow-700 text-lg font-bold"
               >
-                🏃 Run!
+                ðŸƒ Run!
               </button>
             </div>
             <p className="text-xs mt-4 text-center opacity-60">
-              {hasGun ? "🔫 You have a gun - better odds!" : "⚠️ No gun - risky!"}
+              {hasGun ? "ðŸ”« You have a gun - better odds!" : "âš ï¸ No gun - risky!"}
+            </p>
+          </div>
+        </div>
+      )}
+
+
+      {/* COAT OFFER MODAL */}
+      {showCoatOfferModal && (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
+          <div className="backpanel cyber-card p-6 max-w-md w-full mx-4 border-2 border-purple-500">
+            <h2 className="text-3xl font-bold mb-4 neon-flicker text-purple-400">
+              🧥 COAT UPGRADE OFFER!
+            </h2>
+            <p className="text-lg mb-4 text-center">
+              Someone offers to sell you a bigger trenchcoat!
+            </p>
+            <div className="mb-6 text-center">
+              <p className="text-2xl font-bold text-green-400">
+                Cost: $5,000
+              </p>
+              <p className="text-sm opacity-80">
+                +50 capacity (currently: {capacity})
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleAcceptCoatOffer}
+                disabled={loading || cash < 5000}
+                className="flex-1 px-4 py-3 rounded neon-button cyber-sweep bg-green-700 text-lg font-bold disabled:opacity-50"
+              >
+                ✅ Accept ($5k)
+              </button>
+              <button
+                onClick={handleDeclineCoatOffer}
+                disabled={loading}
+                className="flex-1 px-4 py-3 rounded neon-button cyber-sweep bg-red-700 text-lg font-bold"
+              >
+                ❌ Decline
+              </button>
+            </div>
+            <p className="text-xs mt-4 text-center opacity-60">
+              ⚠️ This is a rare offer! You only get ONE coat upgrade per game.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* DAY 30 SETTLEMENT MODAL */}
+      {showDay30Modal && (
+        <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-50">
+          <div className="backpanel cyber-card p-8 max-w-lg w-full mx-4 border-4 border-red-500">
+            <h2 className="text-4xl font-bold mb-4 neon-flicker text-red-400 text-center">
+              🏁 DAY 30 REACHED!
+            </h2>
+            <p className="text-xl mb-6 text-center">
+              Your time is up! It's time to settle your run.
+            </p>
+            
+            <div className="mb-6 p-4 bg-black/50 rounded-lg">
+              <div className="text-center mb-2">
+                <p className="text-sm opacity-80">Final Stats:</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>Cash:</div><div className="text-right text-green-400">${formatMoney(cash)}</div>
+                <div>Bank:</div><div className="text-right text-blue-400">${formatMoney(bankBalance)}</div>
+                <div>Debt:</div><div className="text-right text-red-400">${formatMoney(debt)}</div>
+                <div className="font-bold">Net Worth:</div>
+                <div className="text-right font-bold text-yellow-400">
+                  ${formatMoney(playerData?.currentNetWorth || 0)}
+                </div>
+              </div>
+              
+              {playerData?.wonAtDay && (
+                <div className="mt-4 p-2 bg-green-900/30 rounded text-center">
+                  <p className="text-green-400 font-bold">
+                    🎉 YOU WON at Day {playerData.wonAtDay}!
+                  </p>
+                  <p className="text-sm opacity-80">You'll receive 10 ICE!</p>
+                </div>
+              )}
+            </div>
+            
+            <button
+              onClick={() => {
+                setShowDay30Modal(false);
+                settleGame();
+              }}
+              disabled={loading}
+              className="w-full px-6 py-4 rounded-lg neon-button cyber-sweep bg-gradient-to-r from-red-700 to-orange-700 text-2xl font-bold"
+            >
+              🎯 SETTLE NOW
+            </button>
+            
+            <p className="text-xs mt-4 text-center opacity-60">
+              Settlement will record your score on the blockchain
             </p>
           </div>
         </div>
