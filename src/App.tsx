@@ -152,7 +152,6 @@ export default function App() {
   const capacity = playerData?.trenchcoatCapacity ?? 100;
   const health = playerData?.health ?? 100;
   const hasGun = playerData?.hasGun ?? false;
-  const coatUpgrades = playerData?.coatUpgrades ?? 0;
 
   const locIndex = playerData?.location ?? -1;
   const locationName = locIndex >= 0 ? CITY_NAMES[locIndex] : "Unknown";
