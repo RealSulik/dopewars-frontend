@@ -64,10 +64,8 @@ export function useGame() {
     try {
       setLoading(true);
       setCurrentAction("Starting session...");
-
-      const signer = await provider.getSigner();
       
-      // Call backend to start session
+      // Simple single-call session start (mobile compatible!)
       const response = await fetch(`${API_BASE}/game/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -78,27 +76,6 @@ export function useGame() {
       
       if (!data.success) {
         throw new Error(data.error || "Failed to start session");
-      }
-
-      // Sign the session key message
-      const message = `DopeWars Session Key\nNonce: ${data.nonce}\nExpires: ${data.expiresAt}`;
-      const signature = await signer.signMessage(message);
-
-      // Submit signature to activate session
-      const activateResponse = await fetch(`${API_BASE}/game/start`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          playerAddress: wallet,
-          signature,
-          nonce: data.nonce,
-        }),
-      });
-
-      const activateData = await activateResponse.json();
-      
-      if (!activateData.success) {
-        throw new Error(activateData.error || "Invalid signature");
       }
 
       console.log("✅ Session started");
