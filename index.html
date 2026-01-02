@@ -2,10 +2,50 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+
+    <!-- Responsive layout -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dopewars-frontend</title>
+
+    <!-- Page Title -->
+    <title>DopeWars on Base</title>
+
+    <!-- Base App ID (Verified) -->
+    <meta name="base:app_id" content="6956c5a34d3a403912ed8928" />
+
+    <!-- Description -->
+    <meta 
+      name="description" 
+      content="Grow your stash, survive random events, hit 1000K net worth, and climb the leaderboard. Earn ICE as you play."
+    />
+
+    <!-- ⭐ Open Graph (improves Base App + social previews) -->
+    <meta property="og:title" content="DopeWars on Base" />
+    <meta 
+      property="og:description" 
+      content="Grow your stash, survive random events, hit 1000K net worth, and climb the leaderboard. Earn ICE as you play." 
+    />
+    <meta name="theme-color" content="#000000" />
+
+    <!-- ⭐ Farcaster Mini App Embed Preview -->
+    <meta
+      name="fc:miniapp"
+      content='{
+        "version": "next",
+        "imageUrl": "https://dopewars-demo.vercel.app/DopeWars-on-Base-spl.png",
+        "button": {
+          "title": "Play DopeWars",
+          "action": {
+            "type": "launch_frame",
+            "url": "https://dopewars-frontend.vercel.app/"
+          }
+        }
+      }'
+    />
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
