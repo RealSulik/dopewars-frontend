@@ -73,6 +73,9 @@ export default function App() {
   
   const [showLoanModal, setShowLoanModal] = useState(false);
   const [loanAmount, setLoanAmount] = useState("");
+  
+  // Cop encounter modal
+  const [showCopModal, setShowCopModal] = useState(false);
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
 
@@ -94,7 +97,10 @@ export default function App() {
     let img = "";
 
     if (ev.includes("mugged") || ev.includes("robbed")) img = "/events/mugged.png";
-    else if (ev.includes("police") || ev.includes("busted")) img = "/events/police.png";
+    else if (ev.includes("police") || ev.includes("busted") || ev.includes("officer hardass")) {
+      img = "/events/police.png";
+      setShowCopModal(true); // Show cop encounter choice
+    }
     else if (ev.includes("stash") || ev.includes("found")) img = "/events/stash.png";
     else if (ev.includes("ice")) img = "/events/ice.png";
 
@@ -784,6 +790,43 @@ export default function App() {
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* COP ENCOUNTER MODAL */}
+      {showCopModal && (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
+          <div className="backpanel cyber-card p-6 max-w-md w-full mx-4 border-2 border-red-500">
+            <h2 className="text-3xl font-bold mb-4 neon-flicker text-red-400">
+              🚨 OFFICER HARDASS! 🚨
+            </h2>
+            <p className="text-lg mb-6 text-center">
+              You've been spotted! What do you do?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  fightCop();
+                  setShowCopModal(false);
+                }}
+                className="flex-1 px-4 py-3 rounded neon-button cyber-sweep bg-red-700 text-lg font-bold"
+              >
+                ⚔️ Fight!
+              </button>
+              <button
+                onClick={() => {
+                  runFromCop();
+                  setShowCopModal(false);
+                }}
+                className="flex-1 px-4 py-3 rounded neon-button cyber-sweep bg-yellow-700 text-lg font-bold"
+              >
+                🏃 Run!
+              </button>
+            </div>
+            <p className="text-xs mt-4 text-center opacity-60">
+              {hasGun ? "🔫 You have a gun - better odds!" : "⚠️ No gun - risky!"}
+            </p>
           </div>
         </div>
       )}
