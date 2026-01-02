@@ -25,11 +25,7 @@ h1 {
    ========================= */
 
 .backpanel {
-background: linear-gradient(
-  135deg,
-  rgba(40, 60, 100, 0.25) 0%,
-  rgba(20, 30, 50, 0.35) 100%
-) !important;
+  background: rgba(1, 4, 12, 0.78);
   backdrop-filter: blur(12px);
   border-radius: 1rem;
   border: 1px solid rgba(148, 163, 184, 0.28);
@@ -39,6 +35,7 @@ background: linear-gradient(
   padding: 1.25rem;
 }
 
+/* tighten spacing between sections */
 .backpanel + .backpanel {
   margin-top: 1rem;
 }
@@ -113,6 +110,7 @@ background: linear-gradient(
     background 0.4s ease;
 }
 
+/* Neutral (violet) */
 .event-panel--neutral {
   border-color: rgba(139, 92, 246, 0.7);
   box-shadow:
@@ -120,6 +118,7 @@ background: linear-gradient(
     0 0 45px rgba(139, 92, 246, 0.25);
 }
 
+/* Win (green) */
 .event-panel--win {
   border-color: rgba(34, 197, 94, 0.85);
   box-shadow:
@@ -127,6 +126,7 @@ background: linear-gradient(
     0 0 50px rgba(34, 197, 94, 0.35);
 }
 
+/* Loss (red) */
 .event-panel--loss {
   border-color: rgba(239, 68, 68, 0.9);
   box-shadow:
@@ -149,9 +149,9 @@ background: linear-gradient(
 button {
   font-weight: 600;
 }
-
 /* ===== Micro FX Pack ===== */
 
+/* Smooth fade-in for HUD */
 .hud-animate {
   animation: hudFade 0.7s ease-out forwards;
   opacity: 0;
@@ -162,6 +162,7 @@ button {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Slow edge glow pulse */
 .hud-pulse {
   animation: hudPulse 4s ease-in-out infinite;
 }
@@ -172,6 +173,7 @@ button {
   100% { box-shadow: 0 0 8px rgba(150,0,255,0.25); }
 }
 
+/* ICE flash animation */
 .ice-flash {
   animation: iceFlash 0.6s ease-out;
 }
@@ -181,9 +183,9 @@ button {
   40%  { color: #c084fc; text-shadow: 0 0 18px rgba(180,0,255,0.9); }
   100% { color: #c084fc; text-shadow: none; }
 }
-
 /* ========== NEON / CYBER FX PACK ========== */
 
+/* 1) Breathing glow panel */
 .cyber-card {
   position: relative;
   animation: cyber-glow 3s ease-in-out infinite;
@@ -194,12 +196,13 @@ button {
   50% { box-shadow: 0 0 14px rgba(0,255,255,0.65), 0 0 25px rgba(0,255,255,0.25); }
 }
 
+/* 2) Hover rim neon scan */
 .cyber-card:hover {
-  box-shadow: inset 0 0 12px rgba(0,255,255,0.5), 
-              0 0 14px rgba(0,255,255,0.45);
+  outline: 2px solid rgba(0,255,255,0.5);
+  outline-offset: 4px;
 }
 
-
+/* 3) Scanline Overlay */
 .cyber-scanlines {
   position: relative;
 }
@@ -219,14 +222,19 @@ button {
   mix-blend-mode: overlay;
 }
 
+/* 4) CRT curve (very subtle) */
 .crt {
   filter: contrast(1.05) saturate(1.1);
 }
+
+/* 5) Neon flicker text */
+/* ===== Controlled Neon Flicker Effect ===== */
 
 .neon-flicker {
   transition: text-shadow 0.3s ease-in-out;
 }
 
+/* Only glows when this class is added temporarily */
 .neon-flicker--active {
   text-shadow:
     0 0 6px rgba(255,255,255,0.8),
@@ -235,6 +243,7 @@ button {
     0 0 32px rgba(120,41,255,1);
 }
 
+/* 6) Reflection sweep on hover */
 .cyber-sweep {
   position: relative;
   overflow: hidden;
@@ -262,6 +271,7 @@ button {
   left: -30%;
 }
 
+/* 7) Glint circuit animation */
 .cyber-trace {
   background-image: linear-gradient(135deg, transparent 80%, rgba(0,255,255,0.45));
   background-size: 300% 300%;
@@ -272,6 +282,13 @@ button {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+/* 8) Neon Buy/Sell buttons */
+.neon-button {
+  position: relative;
+  transition: 0.25s ease;
+  box-shadow: 0 0 8px rgba(0,255,200,0.3);
 }
 
 .neon-button:hover {
@@ -295,6 +312,7 @@ button {
   box-shadow: none !important;
 }
 
+/* HOLOGRAM SIGNAL NOISE â€” subtle */
 .holo-noise {
   position: relative;
   overflow: hidden;
@@ -317,9 +335,6 @@ button {
   opacity: 0.18;
   mix-blend-mode: screen;
 }
-
-/* ===== Event Popup ===== */
-
 .event-popup-overlay {
   position: fixed;
   inset: 0;
@@ -364,7 +379,7 @@ button {
   to   {transform:scale(1);}
 }
 
-/* Loading chip */
+
 .loading-chip {
   position: fixed;
   top: 12px;
@@ -401,7 +416,6 @@ button {
  from { opacity:0; transform: translateY(-6px); }
  to   { opacity:1; transform: translateY(0); }
 }
-
 .neon-glow-lg {
   box-shadow: 0 0 40px rgba(150, 0, 255, 0.7);
 }
@@ -422,8 +436,6 @@ button {
     0 0 30px rgba(159, 74, 255, 0.4);
 }
 
-/* === Trade Quantity Input === */
-
 input:focus {
   outline: none;
   border: 2px solid rgba(128,0,255,0.7);
@@ -435,11 +447,11 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-
 input[type=number] {
   appearance: textfield;
   text-align: center;
 }
+/* === Trade Quantity Input === */
 
 .trade-qty {
   width: 50px;
@@ -448,9 +460,13 @@ input[type=number] {
   padding: 2px 6px;
   text-align: center;
   border-radius: 6px;
+
   background: rgba(255,255,255,0.9);
   color: #000;
   border: 1px solid rgba(128,0,255,0.4);
+
+  /* allow arrows */
+  -moz-appearance: textfield;
 }
 
 .trade-qty:focus {
@@ -459,121 +475,14 @@ input[type=number] {
   outline: none;
 }
 
+/* show spinner arrows normally */
 .trade-qty::-webkit-inner-spin-button,
 .trade-qty::-webkit-outer-spin-button {
   appearance: auto;
   opacity: 0.9;
 }
 
+/* Prevent browsers removing arrows globally (important!) */
 input[type=number] {
   appearance: auto;
-}
-
-/* ======================================================
-   >>> SINGLE CLEAN MOBILE BLOCK
-   ====================================================== */
-
-@media (max-width: 640px) {
-
-  /* reduce padding */
-  body, .min-h-screen {
-    padding: 0 !important;
-  }
-
-  /* collapse columns */
-  .flex.gap-4 {
-    flex-direction: column !important;
-  }
-
-  /* Inventory items go full width */
-  .inventory-grid {
-  grid-template-columns: 1fr !important;
-}
-
-  /* tighten card padding */
-  .backpanel.cyber-card {
-    padding: 8px !important;
-  }
-/* ⚠️ NEW: Override ONLY inventory cards for more room */
-  .inventory-card {
-    padding: 16px !important;   /* or 20px if you want */
-  }
-
-
-
-  /* center all titles */
-  h1, h2, .text-center {
-    text-align: center !important;
-  }
-
-  /* smaller fonts */
-  h1 { font-size: 1.7rem !important; }
-  h2 { font-size: 1.2rem !important; }
-  p, li, button { font-size: .9rem !important; }
-
-  /* Buy/Sell buttons */
-  .neon-button {
-    padding: 6px 12px !important;
-    font-size: .8rem !important;
-  }
-
-  /* HUD columns */
-  .flex.justify-between {
-    flex-direction: column !important;
-    gap: 10px !important;
-  }
-
-  /* backpanels tighter */
-  .backpanel {
-    padding: 12px !important;
-    margin-bottom: 12px !important;
-  }
-}
-/* fix card border clipping */
-@media (min-width: 640px) {
-  .cyber-card {
-    padding-top: 12px !important;
-    padding-bottom: 12px !important;
-    overflow: visible !important;
-  }
-}
-
-/* marquee */
-@keyframes priceMarquee {
-  0%   { transform: translateX(0%); }
-  100% { transform: translateX(-200%); }
-}
-
-.animate-price-marquee {
-  animation: priceMarquee 34s linear infinite;
-}
-
-/* different chip look (not a button) */
-.price-chip {
-  background: linear-gradient(
-    135deg,
-    rgba(255,120,0,0.20) 0%,
-    rgba(255,60,0,0.25) 100%
-  );
-  border: 1px solid rgba(255,180,140,0.35);
-  box-shadow:
-    0 0 8px rgba(255,120,0,0.4),
-    inset 0 0 6px rgba(20,10,0,0.3);
-  color: #fff;
-  backdrop-filter: blur(6px);
-}
-.price-chip {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 255, 120, 0.15),
-    rgba(0, 120, 60, 0.25)
-  ) !important;
-
-  border: 1px solid rgba(0, 255, 120, 0.35) !important;
-
-  box-shadow:
-    0 0 8px rgba(0, 255, 140, 0.25),
-    inset 0 0 10px rgba(0, 255, 150, 0.15);
-
-  color: #caffda !important; /* soft mint text */
 }
