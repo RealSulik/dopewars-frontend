@@ -51,7 +51,7 @@ export default function App() {
     buy,
     sell,
     
-    // NEW ACTIONS for V2 - keeping these for future use
+    // V2 ACTIONS - All being used!
     depositBank,
     withdrawBank,
     payLoan,
@@ -66,9 +66,13 @@ export default function App() {
   const [popupImage, setPopupImage] = useState("");
   const [popupText, setPopupText] = useState("");
   
-  // NEW: Bank/Loan modal state (for future use)
+  // Bank/Loan modal states
   const [showBankModal, setShowBankModal] = useState(false);
+  const [bankAction, setBankAction] = useState<'deposit' | 'withdraw'>('deposit');
   const [bankAmount, setBankAmount] = useState("");
+  
+  const [showLoanModal, setShowLoanModal] = useState(false);
+  const [loanAmount, setLoanAmount] = useState("");
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
 
@@ -107,12 +111,13 @@ export default function App() {
   const days = playerData?.daysPlayed ?? 0;
   const cash = playerData?.cash ?? 0;
   
-  // NEW V2 fields
+  // V2 fields
   const debt = playerData?.debt ?? 0;
   const bankBalance = playerData?.bankBalance ?? 0;
   const capacity = playerData?.trenchcoatCapacity ?? 100;
   const health = playerData?.health ?? 100;
   const hasGun = playerData?.hasGun ?? false;
+  const coatUpgrades = playerData?.coatUpgrades ?? 0;
 
   const locIndex = playerData?.location ?? -1;
   const locationName = locIndex >= 0 ? CITY_NAMES[locIndex] : "Unknown";
@@ -127,10 +132,7 @@ export default function App() {
         { name: "Heroin", price: 0, amount: 0 },
       ];
 
-  // Calculate total drugs in inventory for capacity bar
   const totalDrugs = safeInventory.reduce((sum, d) => sum + (d.amount || 0), 0);
-
-  // Get prices array from inventory for desktop display
   const prices = safeInventory.map(d => d.price || 0);
 
   const lastEvent = playerData?.lastEventDescription;
@@ -150,38 +152,54 @@ export default function App() {
       eventPanelClass = "event-warning";
     }
   }
-
-  // Prevent unused variable warnings - we'll use these in future modals
-  const handleBankAction = () => {
-    if (depositBank && withdrawBank && bankAmount) {
-      setShowBankModal(false);
+  
+  // Bank modal handlers
+  const handleBankSubmit = () => {
+    const amount = parseInt(bankAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid amount");
+      return;
     }
+    
+    if (bankAction === 'deposit') {
+      if (amount > cash) {
+        alert("Not enough cash!");
+        return;
+      }
+      depositBank(amount);
+    } else {
+      if (amount > bankBalance) {
+        alert("Not enough in bank!");
+        return;
+      }
+      withdrawBank(amount);
+    }
+    
+    setShowBankModal(false);
+    setBankAmount("");
   };
   
-  const handleLoanAction = () => {
-    if (payLoan) {
-      console.log("Paying loan");
+  // Loan modal handler
+  const handleLoanSubmit = () => {
+    const amount = parseInt(loanAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid amount");
+      return;
     }
-  };
-  
-  const handleUpgradeAction = () => {
-    if (upgradeCoat) {
-      console.log("Upgrading coat");
+    
+    if (amount > cash) {
+      alert("Not enough cash to pay loan!");
+      return;
     }
-  };
-  
-  const handleGunAction = () => {
-    if (buyGun) {
-      console.log("Buying gun");
+    
+    if (amount > debt) {
+      alert("Can't pay more than you owe!");
+      return;
     }
-  };
-  
-  const handleCopAction = (fight: boolean) => {
-    if (fight && fightCop) {
-      console.log("Fighting cop");
-    } else if (!fight && runFromCop) {
-      console.log("Running from cop");
-    }
+    
+    payLoan(amount);
+    setShowLoanModal(false);
+    setLoanAmount("");
   };
 
   return (
@@ -224,7 +242,7 @@ export default function App() {
             </div>
           )}
 
-          {/* SESSION START SCREEN - Connected but no session */}
+          {/* SESSION START SCREEN */}
           {wallet && !sessionActive && (
             <div className="flex flex-col items-center justify-center pt-20 animate-fadeIn">
               <h2 className="text-3xl font-bold mb-4 neon-flicker">Session Required</h2>
@@ -244,7 +262,7 @@ export default function App() {
           {/* GAME HEADER */}
           {wallet && inGame && (
             <>
-              {/* Top Bar with Disconnect and Leaderboard */}
+              {/* Top Bar */}
               <div className="flex justify-between items-center mb-4 px-2">
                 <h1 className="text-xl sm:text-2xl font-bold neon-flicker neon-text-glow">
                   DopeWars
@@ -265,7 +283,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* MAIN STATS - Cash, Debt, Bank, Net Worth */}
+              {/* MAIN STATS */}
               <div className="backpanel cyber-card cyber-scanlines mb-3 p-3">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
                   <div>
@@ -298,7 +316,7 @@ export default function App() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-400 mb-1">Space: {totalDrugs}/{capacity}</div>
+                    <div className="text-xs text-gray-400 mb-1">Space: {totalDrugs}/{capacity} {hasGun && '🔫'}</div>
                     <div className="w-full bg-gray-700 rounded-full h-2">
                       <div 
                         className={`h-2 rounded-full ${totalDrugs / capacity < 0.8 ? 'bg-blue-500' : 'bg-orange-500'}`}
@@ -316,10 +334,8 @@ export default function App() {
                     <p className="text-sm font-semibold opacity-90">
                       {locationName} · Day {days} {hasGun && '🔫'}
                     </p>
-
                     <div className="flex items-center justify-center gap-2 text-xs">
                       <span className="font-semibold">ICE: {ice}</span>
-
                       <button
                         onClick={claimDailyIce}
                         disabled={loading}
@@ -335,18 +351,16 @@ export default function App() {
                   <div className="flex-1 p-3">
                     <div className="backpanel cyber-card cyber-scanlines cyber-trace text-center px-2 py-2 h-[64px] flex items-center justify-center">
                       <p className="text-sm font-semibold opacity-90">
-                        {locationName} · Day {days} {hasGun && '🔫'}
+                        {locationName} · Day {days}
                       </p>
                     </div>
                   </div>
-
                   <div className="w-80 p-3">
                     <div className="backpanel cyber-card cyber-scanlines cyber-trace text-center px-2 py-2 h-[64px] flex items-center justify-center">
                       <div className="flex flex-col leading-tight">
                         <p className="text-sm font-semibold opacity-90 mb-0.5">
                           ICE: {ice}
                         </p>
-
                         <button
                           onClick={claimDailyIce}
                           disabled={loading}
@@ -369,7 +383,6 @@ export default function App() {
                       <h2 className="text-lg font-bold mb-2 text-center neon-flicker">
                         Current Drug Prices
                       </h2>
-
                       <div className="overflow-hidden relative py-0.5">
                         <div className="flex gap-6 animate-price-marquee whitespace-nowrap">
                           {[...Array(2)].flatMap(() =>
@@ -405,7 +418,6 @@ export default function App() {
                       }`}
                     >
                       {safeInventory.map((d, i) => {
-                        // safe qty
                         const qty: number = Number(quantities[i] ?? 1);
                         const canSell = d.amount > 0;
 
@@ -438,13 +450,10 @@ export default function App() {
                                 isMobile ? "h-auto" : "h-[198px]"
                               }`}
                             >
-
-                              {/* ITEM NAME */}
                               <div className="font-semibold text-lg mb-1">
                                 {d.name}
                               </div>
 
-                              {/* PRICE / TOTAL BLOCK */}
                               {(() => {
                                 const price = Number(d.price ?? 0);
                                 const rawQty = quantities[i];
@@ -458,11 +467,9 @@ export default function App() {
 
                                 return (
                                   <>
-                                    {/* ROW 1: Amount left / Total label right */}
                                     <div className="grid grid-cols-2 text-sm gap-y-1 mb-2">
                                       <span className="opacity-80">Amount: {d.amount} units</span>
                                       <span className="opacity-80 text-right">Total</span>
-
                                       <span className="opacity-90">Price: ${formatMoney(price)}</span>
                                       <span className="opacity-90 text-right">${formatMoney(totalCost)}</span>
                                     </div>
@@ -470,20 +477,16 @@ export default function App() {
                                 );
                               })()}
 
-                              {/* QTY INPUT */}
                               <input
                                 type="number"
                                 min={1}
                                 value={qty}
-                                onChange={(e) =>
-                                  updateQtyRaw(e.target.value)
-                                }
+                                onChange={(e) => updateQtyRaw(e.target.value)}
                                 onBlur={normalizeQty}
                                 className="trade-qty"
                                 placeholder="Qty"
                               />
 
-                              {/* BUY / SELL BUTTONS */}
                               <div className="mt-auto flex gap-2">
                                 <button
                                   onClick={() => buy(i, qty)}
@@ -492,7 +495,6 @@ export default function App() {
                                 >
                                   Buy
                                 </button>
-
                                 <button
                                   onClick={() => sell(i, qty)}
                                   disabled={!canSell || loading}
@@ -525,7 +527,6 @@ export default function App() {
                     >
                       🌙 End Day
                     </button>
-
                     <button
                       onClick={hustle}
                       disabled={loading || cash !== 0}
@@ -538,7 +539,6 @@ export default function App() {
                     >
                       💪 Hustle (0/3)
                     </button>
-
                     <button
                       onClick={stash}
                       disabled={loading || cash !== 0}
@@ -551,7 +551,6 @@ export default function App() {
                     >
                       🎲 Find Stash (0/3)
                     </button>
-
                     <button
                       onClick={settleGame}
                       disabled={loading || days < 5}
@@ -572,10 +571,8 @@ export default function App() {
                   )}
                 </div>
 
-
                 {/* RIGHT column */}
                 <div className="flex flex-col gap-2 w-full md:w-80">
-
                   {/* LAST EVENT PANEL */}
                   <div
                     className={`p-4 backpanel cyber-card cyber-scanlines cyber-trace event-panel ${eventPanelClass}`}
@@ -585,6 +582,76 @@ export default function App() {
                     </h2>
                     <div className={`text-center opacity-90 ${eventColor}`}>
                       {lastEvent || "No events yet"}
+                    </div>
+                  </div>
+
+                  {/* BANK & LOAN PANEL */}
+                  <div className="p-4 backpanel cyber-card cyber-scanlines cyber-trace">
+                    <h2 className="text-lg font-bold mb-2 text-center neon-flicker">
+                      💰 Bank & Loan
+                    </h2>
+                    <div className="flex flex-col gap-2">
+                      <button
+                        onClick={() => {
+                          setBankAction('deposit');
+                          setShowBankModal(true);
+                        }}
+                        disabled={loading || cash === 0}
+                        className="px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-green-700"
+                      >
+                        💵 Deposit to Bank
+                      </button>
+                      <button
+                        onClick={() => {
+                          setBankAction('withdraw');
+                          setShowBankModal(true);
+                        }}
+                        disabled={loading || bankBalance === 0}
+                        className="px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-blue-700"
+                      >
+                        💸 Withdraw from Bank
+                      </button>
+                      <button
+                        onClick={() => setShowLoanModal(true)}
+                        disabled={loading || cash === 0 || debt === 0}
+                        className="px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-red-700"
+                      >
+                        💳 Pay Loan
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* UPGRADES PANEL */}
+                  <div className="p-4 backpanel cyber-card cyber-scanlines cyber-trace">
+                    <h2 className="text-lg font-bold mb-2 text-center neon-flicker">
+                      🛠️ Upgrades
+                    </h2>
+                    <div className="flex flex-col gap-2">
+                      <button
+                        onClick={upgradeCoat}
+                        disabled={loading || cash < 5000}
+                        className="px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-purple-700"
+                        title="Cost: $5,000 - Adds 50 space"
+                      >
+                        🎒 Upgrade Coat (Lv{coatUpgrades})
+                      </button>
+                      <div className="text-xs text-center opacity-80">
+                        Cost: $5,000 (+50 space)
+                      </div>
+                      
+                      <button
+                        onClick={buyGun}
+                        disabled={loading || cash < 3000 || hasGun}
+                        className="px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-orange-700"
+                        title="Cost: $3,000"
+                      >
+                        {hasGun ? '✅ Gun Owned' : '🔫 Buy Gun'}
+                      </button>
+                      {!hasGun && (
+                        <div className="text-xs text-center opacity-80">
+                          Cost: $3,000 (helps in combat)
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -608,11 +675,9 @@ export default function App() {
                     <h2 className="text-lg font-bold mb-2 text-center neon-flicker">
                       Travel
                     </h2>
-
                     <div className="text-xs opacity-80 mb-2 text-center">
                       ⚠️ Travel ends the day (+interest)
                     </div>
-
                     <div className="grid grid-cols-2 gap-2 text-xs md:grid-cols-2">
                       {CITY_NAMES.map((city, i) => (
                         <button
@@ -636,6 +701,93 @@ export default function App() {
         </div>
       </div>
 
+      {/* BANK MODAL */}
+      {showBankModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="backpanel cyber-card p-6 max-w-md w-full mx-4">
+            <h2 className="text-2xl font-bold mb-4 neon-flicker">
+              {bankAction === 'deposit' ? '💵 Deposit to Bank' : '💸 Withdraw from Bank'}
+            </h2>
+            <div className="mb-4">
+              <p className="text-sm opacity-80 mb-2">
+                {bankAction === 'deposit' 
+                  ? `Available cash: $${formatMoney(cash)}`
+                  : `Bank balance: $${formatMoney(bankBalance)}`}
+              </p>
+              <input
+                type="number"
+                value={bankAmount}
+                onChange={(e) => setBankAmount(e.target.value)}
+                placeholder="Enter amount"
+                className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-600 text-white"
+                min="1"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleBankSubmit}
+                className="flex-1 px-4 py-2 rounded neon-button cyber-sweep bg-green-700"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={() => {
+                  setShowBankModal(false);
+                  setBankAmount("");
+                }}
+                className="flex-1 px-4 py-2 rounded neon-button cyber-sweep bg-gray-700"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* LOAN MODAL */}
+      {showLoanModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="backpanel cyber-card p-6 max-w-md w-full mx-4">
+            <h2 className="text-2xl font-bold mb-4 neon-flicker">
+              💳 Pay Loan
+            </h2>
+            <div className="mb-4">
+              <p className="text-sm opacity-80 mb-2">
+                Total debt: ${formatMoney(debt)}
+              </p>
+              <p className="text-sm opacity-80 mb-2">
+                Available cash: ${formatMoney(cash)}
+              </p>
+              <input
+                type="number"
+                value={loanAmount}
+                onChange={(e) => setLoanAmount(e.target.value)}
+                placeholder="Enter amount to pay"
+                className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-600 text-white"
+                min="1"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleLoanSubmit}
+                className="flex-1 px-4 py-2 rounded neon-button cyber-sweep bg-red-700"
+              >
+                Pay Loan
+              </button>
+              <button
+                onClick={() => {
+                  setShowLoanModal(false);
+                  setLoanAmount("");
+                }}
+                className="flex-1 px-4 py-2 rounded neon-button cyber-sweep bg-gray-700"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* POPUP EVENT */}
       <EventPopup
         visible={showPopup}
@@ -644,16 +796,10 @@ export default function App() {
         onClose={() => setShowPopup(false)}
       />
 
-      {/* LEADERBOARD - FIXED: removed isOpen prop */}
+      {/* LEADERBOARD */}
       {showLeaderboard && (
         <LeaderboardModal onClose={() => setShowLeaderboard(false)} />
       )}
-      
-      {/* Hidden handlers to prevent unused variable warnings */}
-      <div style={{ display: 'none' }}>
-        {handleBankAction && handleLoanAction && handleUpgradeAction && 
-         handleGunAction && handleCopAction && showBankModal && setBankAmount && null}
-      </div>
     </>
   );
 }
