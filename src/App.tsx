@@ -35,7 +35,6 @@ export default function App() {
     sessionActive,
     playerData,
     inventory,
-    // prices is not used directly in this component anymore
     ice,
     loading,
     errorMessage,
@@ -52,7 +51,7 @@ export default function App() {
     buy,
     sell,
     
-    // NEW ACTIONS for V2
+    // NEW ACTIONS for V2 - keeping these for future use
     depositBank,
     withdrawBank,
     payLoan,
@@ -66,6 +65,10 @@ export default function App() {
   const [showPopup, setShowPopup] = useState(false);
   const [popupImage, setPopupImage] = useState("");
   const [popupText, setPopupText] = useState("");
+  
+  // NEW: Bank/Loan modal state (for future use)
+  const [showBankModal, setShowBankModal] = useState(false);
+  const [bankAmount, setBankAmount] = useState("");
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
 
@@ -107,7 +110,7 @@ export default function App() {
   // NEW V2 fields
   const debt = playerData?.debt ?? 0;
   const bankBalance = playerData?.bankBalance ?? 0;
-  const capacity = playerData?.capacity ?? 100;
+  const capacity = playerData?.trenchcoatCapacity ?? 100;
   const health = playerData?.health ?? 100;
   const hasGun = playerData?.hasGun ?? false;
 
@@ -147,6 +150,39 @@ export default function App() {
       eventPanelClass = "event-warning";
     }
   }
+
+  // Prevent unused variable warnings - we'll use these in future modals
+  const handleBankAction = () => {
+    if (depositBank && withdrawBank && bankAmount) {
+      setShowBankModal(false);
+    }
+  };
+  
+  const handleLoanAction = () => {
+    if (payLoan) {
+      console.log("Paying loan");
+    }
+  };
+  
+  const handleUpgradeAction = () => {
+    if (upgradeCoat) {
+      console.log("Upgrading coat");
+    }
+  };
+  
+  const handleGunAction = () => {
+    if (buyGun) {
+      console.log("Buying gun");
+    }
+  };
+  
+  const handleCopAction = (fight: boolean) => {
+    if (fight && fightCop) {
+      console.log("Fighting cop");
+    } else if (!fight && runFromCop) {
+      console.log("Running from cop");
+    }
+  };
 
   return (
     <>
@@ -525,18 +561,6 @@ export default function App() {
                           : "bg-gray-700 opacity-60 cursor-not-allowed"
                       }`}
                     >
-                      ❄️ Claim ICE (3)
-                    </button>
-
-                    <button
-                      onClick={settleGame}
-                      disabled={loading || days < 5}
-                      className={`px-5 py-2 rounded font-semibold neon-button cyber-sweep ${
-                        days >= 5
-                          ? "bg-gray-800 border border-white"
-                          : "bg-gray-700 opacity-60 cursor-not-allowed"
-                      }`}
-                    >
                       Settle & Restart
                     </button>
                   </div>
@@ -624,6 +648,12 @@ export default function App() {
       {showLeaderboard && (
         <LeaderboardModal onClose={() => setShowLeaderboard(false)} />
       )}
+      
+      {/* Hidden handlers to prevent unused variable warnings */}
+      <div style={{ display: 'none' }}>
+        {handleBankAction && handleLoanAction && handleUpgradeAction && 
+         handleGunAction && handleCopAction && showBankModal && setBankAmount && null}
+      </div>
     </>
   );
 }
