@@ -27,7 +27,7 @@ export function useGame() {
     setTimeout(() => setErrorMessage(null), 8000);
   }
 
-  // Connect wallet (MetaMask, Base App, etc.)
+  // Connect wallet
   const connectWallet = useCallback(async () => {
     if (!window.ethereum) {
       showError("No wallet found! Please install MetaMask or use Base App.");
@@ -54,12 +54,8 @@ export function useGame() {
     }
   }, []);
 
-  // Start session (one blockchain transaction)
+  // Start session
   const startSession = useCallback(async () => {
-    console.log("🔍 startSession called");
-    console.log("🔍 wallet:", wallet);
-    console.log("🔍 provider:", provider);
-    
     if (!wallet || !provider) {
       showError("Connect wallet first");
       return;
@@ -72,20 +68,13 @@ export function useGame() {
       const signer = await provider.getSigner();
       
       // Call backend to start session
-      const requestBody = { playerAddress: wallet };
-      console.log("📤 Sending to backend:", requestBody);
-      console.log("📤 API endpoint:", `${API_BASE}/game/start`);
-      
       const response = await fetch(`${API_BASE}/game/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({ playerAddress: wallet }),
       });
 
-      console.log("📥 Response status:", response.status);
-      
       const data = await response.json();
-      console.log("📥 Response data:", data);
       
       if (!data.success) {
         throw new Error(data.error || "Failed to start session");
@@ -93,29 +82,20 @@ export function useGame() {
 
       // Sign the session key message
       const message = `DopeWars Session Key\nNonce: ${data.nonce}\nExpires: ${data.expiresAt}`;
-      console.log("✍️ Signing message:", message);
-      
       const signature = await signer.signMessage(message);
-      console.log("✍️ Signature:", signature);
 
       // Submit signature to activate session
-      const activateBody = { 
-        playerAddress: wallet,
-        signature,
-        nonce: data.nonce,
-      };
-      console.log("📤 Activating session:", activateBody);
-      
       const activateResponse = await fetch(`${API_BASE}/game/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(activateBody),
+        body: JSON.stringify({ 
+          playerAddress: wallet,
+          signature,
+          nonce: data.nonce,
+        }),
       });
 
-      console.log("📥 Activate response status:", activateResponse.status);
-      
       const activateData = await activateResponse.json();
-      console.log("📥 Activate response data:", activateData);
       
       if (!activateData.success) {
         throw new Error(activateData.error || "Failed to activate session");
@@ -136,7 +116,7 @@ export function useGame() {
     }
   }, [wallet, provider]);
 
-  // Refresh game state from backend
+  // Refresh game state
   const refreshGameState = useCallback(async () => {
     if (!wallet) return;
 
@@ -144,8 +124,8 @@ export function useGame() {
       const response = await fetch(`${API_BASE}/game/state?playerAddress=${wallet}`);
       const data = await response.json();
 
-      if (!data.success) {
-        console.warn("Failed to fetch game state:", data.error);
+      if (!data.success || !data.gameState) {
+        console.warn("No active game found");
         return;
       }
 
@@ -153,15 +133,20 @@ export function useGame() {
       
       setPlayerData({
         cash: state.cash,
+        debt: state.debt,
+        bankBalance: state.bankBalance,
+        health: state.health,
+        hasGun: state.hasGun,
+        trenchcoatCapacity: state.trenchcoatCapacity,
+        coatUpgrades: state.coatUpgrades,
         location: state.location,
         netWorthGoal: state.netWorthGoal,
+        currentNetWorth: state.currentNetWorth,
         daysPlayed: state.daysPlayed,
         lastEventDescription: state.lastEventDescription || "",
-        hasFinished: state.hasFinished,
-        didWin: state.didWin,
-        finalNetWorth: state.finalNetWorth,
         hustlesUsed: state.hustlesUsed,
         stashesUsed: state.stashesUsed,
+        status: state.status,
       });
 
       // Build inventory
@@ -186,7 +171,7 @@ export function useGame() {
     }
   }, [wallet]);
 
-  // Generic action handler for backend API calls
+  // Generic action handler
   const sendAction = useCallback(async (
     label: string,
     action: string,
@@ -231,7 +216,7 @@ export function useGame() {
     }
   }, [wallet, sessionActive, refreshGameState]);
 
-  // Settle game (final blockchain transaction)
+  // Settle game
   const settleGame = useCallback(async () => {
     if (!wallet || !provider || !sessionActive) {
       showError("Session not active");
@@ -265,7 +250,9 @@ export function useGame() {
       setPlayerData(null);
       setInventory([]);
       setPrices([]);
-      setIce(0);
+      
+      // Refresh ICE
+      await refreshGameState();
       
     } catch (err: any) {
       showError(err.message || "Settlement failed");
@@ -289,7 +276,7 @@ export function useGame() {
     connectWallet,
     startSession,
     
-    // Game actions (all go through backend)
+    // Original game actions
     endDay: () => sendAction("Ending day...", "endDay"),
     buy: (drugIndex: number, amount: number) => 
       sendAction("Buying...", "buyDrug", { drugIndex, amount }),
@@ -300,6 +287,22 @@ export function useGame() {
     claimDailyIce: () => sendAction("Claiming ICE...", "claimDailyIce"),
     travelTo: (location: number) => 
       sendAction("Traveling...", "travelTo", { location }),
+    
+    // NEW: Banking actions
+    depositBank: (amount: number) =>
+      sendAction("Depositing...", "depositBank", { amount }),
+    withdrawBank: (amount: number) =>
+      sendAction("Withdrawing...", "withdrawBank", { amount }),
+    payLoan: (amount: number) =>
+      sendAction("Paying loan...", "payLoan", { amount }),
+    
+    // NEW: Upgrade actions
+    upgradeCoat: () => sendAction("Upgrading coat...", "upgradeCoat"),
+    buyGun: () => sendAction("Buying gun...", "buyGun"),
+    
+    // NEW: Combat actions
+    fightCop: () => sendAction("Fighting...", "fightCop"),
+    runFromCop: () => sendAction("Running...", "runFromCop"),
     
     // Settlement
     settleGame,
