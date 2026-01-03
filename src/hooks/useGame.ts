@@ -11,6 +11,9 @@ const CONTRACT_ABI = [
   "function settleRun(address playerAddress, uint256 finalNetWorth, uint256 daysPlayed, bytes32 runId, bytes signature) public"
 ];
 
+// Timeout for blockchain confirmation (2 minutes)
+const TX_TIMEOUT = 120000;
+
 export function useGame() {
   const [wallet, setWallet] = useState<string | null>(null);
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
@@ -24,19 +27,24 @@ export function useGame() {
   const [loading, setLoading] = useState(false);
   const [currentAction, setCurrentAction] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorContext, setErrorContext] = useState<string | null>(null); // NEW: Track where error occurred
 
   const drugNames = ["Weed", "Acid", "Cocaine", "Heroin"];
 
-  function showError(text: string) {
-    console.error("🚨 Game error:", text);
+  function showError(text: string, context?: string) {
+    console.error("🚨 Game error:", text, context);
     setErrorMessage(text);
-    setTimeout(() => setErrorMessage(null), 8000);
+    setErrorContext(context || null);
+    setTimeout(() => {
+      setErrorMessage(null);
+      setErrorContext(null);
+    }, 5000); // Reduced from 8 to 5 seconds
   }
 
   // Connect wallet
   const connectWallet = useCallback(async () => {
     if (!window.ethereum) {
-      showError("No wallet found! Please install MetaMask or use Base App.");
+      showError("No wallet found! Please install MetaMask or use Base App.", "wallet-connect");
       return;
     }
 
@@ -54,7 +62,7 @@ export function useGame() {
       setWallet(address);
       setProvider(ethProvider);
     } catch (err: any) {
-      showError(err.message || "Failed to connect wallet");
+      showError(err.message || "Failed to connect wallet", "wallet-connect");
     } finally {
       setLoading(false);
     }
@@ -63,7 +71,7 @@ export function useGame() {
   // Start session
   const startSession = useCallback(async () => {
     if (!wallet || !provider) {
-      showError("Connect wallet first");
+      showError("Connect wallet first", "session-start");
       return;
     }
 
@@ -91,7 +99,7 @@ export function useGame() {
       await refreshGameState();
       
     } catch (err: any) {
-      showError(err.message || "Failed to start session");
+      showError(err.message || "Failed to start session", "session-start");
     } finally {
       setLoading(false);
       setCurrentAction(null);
@@ -136,7 +144,7 @@ export function useGame() {
         // NEW: Event flags
         copEncounterPending: state.copEncounterPending,
         coatOfferPending: state.coatOfferPending,
-        wonAtDay: state.wonAtDay, // NEW: Track when won
+        wonAtDay: state.wonAtDay,
       });
 
       // Build inventory
@@ -168,7 +176,7 @@ export function useGame() {
     params: any = {}
   ) => {
     if (!wallet || !sessionActive) {
-      showError("Session not active");
+      showError("Session not active", action);
       return;
     }
 
@@ -191,7 +199,7 @@ export function useGame() {
       if (!data.success) {
         // Check if game must settle (day 30 reached)
         if (data.mustSettle) {
-          showError("⚠️ Day 30 reached! You must settle your game now.");
+          showError("⚠️ Day 30 reached! You must settle your game now.", action);
           await refreshGameState();
           return;
         }
@@ -202,7 +210,7 @@ export function useGame() {
       await refreshGameState();
       
     } catch (err: any) {
-      showError(err.message || "Action failed");
+      showError(err.message || "Action failed", action);
     } finally {
       setLoading(false);
       setCurrentAction(null);
@@ -212,10 +220,10 @@ export function useGame() {
     }
   }, [wallet, sessionActive, refreshGameState]);
 
-  // Settle game - GEMINI'S APPROACH
+  // Settle game - WITH IMPROVED ERROR HANDLING
   const settleGame = useCallback(async () => {
     if (!wallet || !provider || !sessionActive) {
-      showError("Session not active");
+      showError("Session not active", "settlement");
       return;
     }
 
@@ -233,7 +241,7 @@ export function useGame() {
       const data = await response.json();
 
       if (!data.success) {
-        throw new Error(data.error || "Settlement failed");
+        throw new Error(data.error || "Settlement preparation failed");
       }
 
       console.log("📝 Settlement data received:", {
@@ -242,33 +250,53 @@ export function useGame() {
         runId: data.runId
       });
 
-      // Step 2: User's wallet sends the transaction (Paymaster sponsors if in Base App!)
-      setCurrentAction("Please confirm transaction in your wallet...");
+      // Step 2: Validate settlement data
+      if (!data.signature || !data.runId || data.finalNetWorth === undefined || data.daysPlayed === undefined) {
+        throw new Error("Invalid settlement data from server. Please contact support.");
+      }
+
+      // Step 3: User's wallet sends the transaction
+      setCurrentAction("Confirm transaction in your wallet...");
       
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
       console.log("🚀 Sending settlement transaction...");
       
-      const tx = await contract.settleRun(
-        wallet,
-        data.finalNetWorth,
-        data.daysPlayed,
-        data.runId,
-        data.signature
-      );
+      let tx;
+      try {
+        tx = await contract.settleRun(
+          wallet,
+          BigInt(data.finalNetWorth),
+          BigInt(data.daysPlayed),
+          data.runId,
+          data.signature
+        );
+      } catch (err: any) {
+        if (err.code === 4001 || err.code === "ACTION_REJECTED") {
+          throw new Error("Transaction cancelled");
+        }
+        throw new Error("Transaction failed: " + (err.reason || err.message));
+      }
 
       console.log("⏳ Transaction sent:", tx.hash);
       
+      // Step 4: Wait for confirmation with timeout
       setCurrentAction("Waiting for blockchain confirmation...");
-      const receipt = await tx.wait();
+      
+      const receipt = await Promise.race([
+        tx.wait(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Transaction confirmation timeout. Check your wallet for status.")), TX_TIMEOUT)
+        )
+      ]) as any;
       
       console.log("✅ Settlement confirmed:", receipt.hash);
 
       // Show settlement results
       const resultMessage = data.didWin 
         ? `🎉 YOU WON at Day ${data.wonAtDay}!\nFinal: $${data.finalNetWorth.toLocaleString()}\nICE Earned: ${data.iceAwarded}\nTotal ICE: ${data.totalIce}`
-        : `Game Over!\nFinal: $${data.finalNetWorth.toLocaleString()}\nICE Earned: ${data.iceAwarded}\nTotal ICE: ${data.totalIce}`;
+        : `Game Complete!\nFinal: $${data.finalNetWorth.toLocaleString()}\nICE Earned: ${data.iceAwarded}\nTotal ICE: ${data.totalIce}`;
       
       alert(resultMessage);
 
@@ -280,7 +308,19 @@ export function useGame() {
 
     } catch (err: any) {
       console.error("Settlement error:", err);
-      showError(err.message || err.reason || "Settlement failed");
+      
+      // Better error messages based on error type
+      let userMessage = err.message;
+      
+      if (err.message.includes("timeout")) {
+        userMessage = "Transaction is taking longer than expected. Check your wallet to see if it completed.";
+      } else if (err.message.includes("insufficient funds")) {
+        userMessage = "Not enough ETH for gas. Transaction is free but needs tiny gas buffer.";
+      } else if (err.message.includes("cancelled")) {
+        userMessage = "Transaction cancelled. Your game is still saved.";
+      }
+      
+      showError(userMessage, "settlement");
     } finally {
       setLoading(false);
       setCurrentAction(null);
@@ -297,6 +337,7 @@ export function useGame() {
     loading,
     currentAction,
     errorMessage,
+    errorContext, // NEW: Expose error context
 
     connectWallet,
     startSession,
@@ -321,13 +362,13 @@ export function useGame() {
     payLoan: (amount: number) =>
       sendAction("Paying loan...", "payLoan", { amount }),
     
-    // NEW: Coat upgrade actions (random offer mechanic!)
+    // NEW: Coat upgrade actions
     acceptCoatOffer: () => 
       sendAction("Accepting coat upgrade...", "acceptCoatOffer"),
     declineCoatOffer: () => 
       sendAction("Declining coat upgrade...", "declineCoatOffer"),
     
-    // NEW: Upgrade actions (keeping gun for now, should be random offer later)
+    // NEW: Upgrade actions
     buyGun: () => sendAction("Buying gun...", "buyGun"),
     
     // NEW: Combat actions
