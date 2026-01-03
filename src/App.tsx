@@ -1,4 +1,5 @@
 // src/App.tsx
+// Forced update for UTF-8 encoding
 import "./App.css";
 import { useGame } from "./hooks/useGame";
 import { useEffect, useState } from "react";
@@ -59,7 +60,6 @@ export default function App() {
     fightCop,
     runFromCop,
     
-    // NEW: Coat upgrade actions (random offer mechanic!)
     acceptCoatOffer,
     declineCoatOffer,
   } = useGame();
@@ -256,18 +256,17 @@ export default function App() {
       <div
         className="min-h-screen text-white relative"
         style={{
-          backgroundImage: inGame ? `url(${backgroundFile})` : "url(/backgrounds/default-bg.png)",
-          backgroundSize: "cover",
+backgroundImage: inGame ? `url(${backgroundFile})` : "url(/cyberpunk-bg.jpg)",          backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundAttachment: "fixed",
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/75 pointer-events-none" />
 
-        <div className="relative z-10 mx-auto px-2 sm:px-4 py-4">
+<div className="relative z-10 mx-auto px-2 sm:px-4 py-4 max-w-7xl">
           {errorMessage && (
             <div className="p-2 mb-4 bg-red-600 text-center font-semibold rounded animate-fadeIn cyber-card">
-              âš  {errorMessage}
+              ⚠️ {errorMessage}
             </div>
           )}
 
@@ -365,7 +364,7 @@ export default function App() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-400 mb-1">Space: {totalDrugs}/{capacity} {hasGun && 'ðŸ”«'}</div>
+                    <div className="text-xs text-gray-400 mb-1">Space: {totalDrugs}/{capacity} {hasGun && '🔫'}</div>
                     <div className="w-full bg-gray-700 rounded-full h-2">
                       <div 
                         className={`h-2 rounded-full ${totalDrugs / capacity < 0.8 ? 'bg-blue-500' : 'bg-orange-500'}`}
@@ -381,7 +380,7 @@ export default function App() {
                 <div className="px-2 mb-3">
                   <div className="backpanel cyber-card cyber-scanlines cyber-trace px-3 py-3 flex flex-col items-center gap-2 text-center">
                     <p className="text-sm font-semibold opacity-90">
-                      {locationName} Â· Day {days} {hasGun && 'ðŸ”«'}
+                      {locationName} · Day {days} {hasGun && '🔫'}
                     </p>
                     <div className="flex items-center justify-center gap-2 text-xs">
                       <span className="font-semibold">ICE: {ice}</span>
@@ -400,7 +399,7 @@ export default function App() {
                   <div className="flex-1 p-3">
                     <div className="backpanel cyber-card cyber-scanlines cyber-trace text-center px-2 py-2 h-[64px] flex items-center justify-center">
                       <p className="text-sm font-semibold opacity-90">
-                        {locationName} Â· Day {days}
+                        {locationName} · Day {days}
                       </p>
                     </div>
                   </div>
@@ -574,7 +573,7 @@ export default function App() {
                       disabled={loading}
                       className="px-5 py-2 rounded font-semibold neon-button cyber-sweep bg-blue-600"
                     >
-                      ðŸŒ™ End Day
+                      🌙 End Day
                     </button>
                     <button
                       onClick={hustle}
@@ -586,7 +585,7 @@ export default function App() {
                           : "bg-gray-700 opacity-60 cursor-not-allowed"
                       }`}
                     >
-                      ðŸ’ª Hustle (0/3)
+                      💪 Hustle (0/3)
                     </button>
                     <button
                       onClick={stash}
@@ -598,7 +597,7 @@ export default function App() {
                           : "bg-gray-700 opacity-60 cursor-not-allowed"
                       }`}
                     >
-                      ðŸŽ² Find Stash (0/3)
+                      🎲 Find Stash (0/3)
                     </button>
                     <button
                       onClick={settleGame}
@@ -637,7 +636,7 @@ export default function App() {
                   {/* BANK & LOAN PANEL */}
                   <div className="p-4 backpanel cyber-card cyber-scanlines cyber-trace">
                     <h2 className="text-lg font-bold mb-2 text-center neon-flicker">
-                      ðŸ’° Bank & Loan
+                      💰 Bank & Loan
                     </h2>
                     <div className="flex flex-col gap-2">
                       <button
@@ -648,7 +647,7 @@ export default function App() {
                         disabled={loading || cash === 0}
                         className="px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-green-700"
                       >
-                        ðŸ’µ Deposit to Bank
+                        💵 Deposit to Bank
                       </button>
                       <button
                         onClick={() => {
@@ -658,14 +657,14 @@ export default function App() {
                         disabled={loading || bankBalance === 0}
                         className="px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-blue-700"
                       >
-                        ðŸ’¸ Withdraw from Bank
+                        💸 Withdraw from Bank
                       </button>
                       <button
                         onClick={() => setShowLoanModal(true)}
                         disabled={loading || cash === 0 || debt === 0}
                         className="px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-red-700"
                       >
-                        ðŸ’³ Pay Loan
+                        💳 Pay Loan
                       </button>
                     </div>
                   </div>
@@ -727,7 +726,7 @@ export default function App() {
                       Travel
                     </h2>
                     <div className="text-xs opacity-80 mb-2 text-center">
-                      âš ï¸ Travel ends the day (+interest)
+                      ⚠️ Travel ends the day (+interest)
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-xs md:grid-cols-2">
                       {CITY_NAMES.map((city, i) => (
@@ -757,7 +756,7 @@ export default function App() {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4">
             <h2 className="text-2xl font-bold mb-4 neon-flicker">
-              {bankAction === 'deposit' ? 'ðŸ’µ Deposit to Bank' : 'ðŸ’¸ Withdraw from Bank'}
+              {bankAction === 'deposit' ? '💵 Deposit to Bank' : '💸 Withdraw from Bank'}
             </h2>
             <div className="mb-4">
               <p className="text-sm opacity-80 mb-2">
@@ -800,7 +799,7 @@ export default function App() {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4">
             <h2 className="text-2xl font-bold mb-4 neon-flicker">
-              ðŸ’³ Pay Loan
+              💳 Pay Loan
             </h2>
             <div className="mb-4">
               <p className="text-sm opacity-80 mb-2">
@@ -844,7 +843,7 @@ export default function App() {
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4 border-2 border-red-500">
             <h2 className="text-3xl font-bold mb-4 neon-flicker text-red-400">
-              ðŸš¨ OFFICER HARDASS! ðŸš¨
+              🚨 OFFICER HARDASS! 🚨
             </h2>
             <p className="text-lg mb-6 text-center">
               You've been spotted! What do you do?
@@ -857,7 +856,7 @@ export default function App() {
                 }}
                 className="flex-1 px-4 py-3 rounded neon-button cyber-sweep bg-red-700 text-lg font-bold"
               >
-                âš”ï¸ Fight!
+                ⚔️ Fight!
               </button>
               <button
                 onClick={() => {
@@ -866,18 +865,18 @@ export default function App() {
                 }}
                 className="flex-1 px-4 py-3 rounded neon-button cyber-sweep bg-yellow-700 text-lg font-bold"
               >
-                ðŸƒ Run!
+                🏃 Run!
               </button>
             </div>
             <p className="text-xs mt-4 text-center opacity-60">
-              {hasGun ? "ðŸ”« You have a gun - better odds!" : "âš ï¸ No gun - risky!"}
+              {hasGun ? "🔫 You have a gun - better odds!" : "⚠️ No gun - risky!"}
             </p>
           </div>
         </div>
       )}
 
 
-      {/* COAT OFFER MODAL */}
+      {/* COAT OFFER MODAL AND UTF */}
       {showCoatOfferModal && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4 border-2 border-purple-500">
