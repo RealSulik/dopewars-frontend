@@ -5,6 +5,12 @@ import { ethers } from "ethers";
 const API_BASE = "https://dopewars-backend.vercel.app/api";
 // const API_BASE = "http://localhost:3000/api"; // For local testing
 
+// Contract details
+const CONTRACT_ADDRESS = "0x58b200A5ac031DD6245ffc63E0A247AEe39ec609";
+const CONTRACT_ABI = [
+  "function settleRun(address playerAddress, uint256 finalNetWorth, uint256 daysPlayed, bytes32 runId, bytes signature) public"
+];
+
 export function useGame() {
   const [wallet, setWallet] = useState<string | null>(null);
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
@@ -206,7 +212,7 @@ export function useGame() {
     }
   }, [wallet, sessionActive, refreshGameState]);
 
-  // Settle game
+  // Settle game - GEMINI'S APPROACH
   const settleGame = useCallback(async () => {
     if (!wallet || !provider || !sessionActive) {
       showError("Session not active");
@@ -215,8 +221,9 @@ export function useGame() {
 
     try {
       setLoading(true);
-      setCurrentAction("Settling game on blockchain...");
+      setCurrentAction("Preparing settlement...");
 
+      // Step 1: Call backend to get signature
       const response = await fetch(`${API_BASE}/game/settle`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -229,11 +236,34 @@ export function useGame() {
         throw new Error(data.error || "Settlement failed");
       }
 
-      // Wait for blockchain confirmation
-      if (data.txHash) {
-        const receipt = await provider.waitForTransaction(data.txHash);
-        console.log("Settlement confirmed:", receipt);
-      }
+      console.log("📝 Settlement data received:", {
+        finalNetWorth: data.finalNetWorth,
+        daysPlayed: data.daysPlayed,
+        runId: data.runId
+      });
+
+      // Step 2: User's wallet sends the transaction (Paymaster sponsors if in Base App!)
+      setCurrentAction("Please confirm transaction in your wallet...");
+      
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      console.log("🚀 Sending settlement transaction...");
+      
+      const tx = await contract.settleRun(
+        wallet,
+        data.finalNetWorth,
+        data.daysPlayed,
+        data.runId,
+        data.signature
+      );
+
+      console.log("⏳ Transaction sent:", tx.hash);
+      
+      setCurrentAction("Waiting for blockchain confirmation...");
+      const receipt = await tx.wait();
+      
+      console.log("✅ Settlement confirmed:", receipt.hash);
 
       // Show settlement results
       const resultMessage = data.didWin 
@@ -249,7 +279,8 @@ export function useGame() {
       setPrices([]);
 
     } catch (err: any) {
-      showError(err.message || "Settlement failed");
+      console.error("Settlement error:", err);
+      showError(err.message || err.reason || "Settlement failed");
     } finally {
       setLoading(false);
       setCurrentAction(null);
