@@ -464,7 +464,7 @@ export default function App() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-400 mb-0.5">Space: {totalDrugs}/{capacity} {hasGun && '🔫'}</div>
+                    <div className="text-xs text-gray-400 mb-0.5">Inventory: {totalDrugs}/{capacity} {hasGun && '🔫'}</div>
                     <div className="w-full bg-gray-700 rounded-full h-2">
                       <div 
                         className={`h-2 rounded-full ${totalDrugs / capacity < 0.8 ? 'bg-blue-500' : 'bg-orange-500'}`}
