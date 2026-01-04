@@ -5,7 +5,7 @@ import { useGame } from "./hooks/useGame";
 import { useEffect, useState } from "react";
 import EventPopup from "./EventPopup";
 import LeaderboardModal from "./components/LeaderboardModal";
-import ErrorToast from "./components/ErrorToast";
+import ErrorToast from "./components/ErrorToast"; // ← Now used for top popup
 
 function formatMoney(v: number) {
   return Math.round(v).toLocaleString();
@@ -40,7 +40,6 @@ export default function App() {
     ice,
     loading,
     errorMessage,
-    errorContext,
     currentAction,
 
     connectWallet,
@@ -54,6 +53,7 @@ export default function App() {
     buy,
     sell,
     
+    // V2 ACTIONS
     depositBank,
     withdrawBank,
     payLoan,
@@ -70,6 +70,7 @@ export default function App() {
   const [popupImage, setPopupImage] = useState("");
   const [popupText, setPopupText] = useState("");
   
+  // Bank/Loan modal states
   const [showBankModal, setShowBankModal] = useState(false);
   const [bankAction, setBankAction] = useState<'deposit' | 'withdraw'>('deposit');
   const [bankAmount, setBankAmount] = useState("");
@@ -77,14 +78,21 @@ export default function App() {
   const [showLoanModal, setShowLoanModal] = useState(false);
   const [loanAmount, setLoanAmount] = useState("");
   
+  // Cop encounter modal
   const [showCopModal, setShowCopModal] = useState(false);
+  
+  // NEW: Coat offer modal
   const [showCoatOfferModal, setShowCoatOfferModal] = useState(false);
+  
+  // NEW: Day 30 settlement prompt
   const [showDay30Modal, setShowDay30Modal] = useState(false);
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
 
+  // quantity state
   const [quantities, setQuantities] = useState<number[]>(() => [1, 1, 1, 1]);
 
+  // Event popup logic
   useEffect(() => {
     const event = playerData?.lastEventDescription;
     if (!event) return;
@@ -114,18 +122,21 @@ export default function App() {
     setTimeout(() => setShowPopup(false), 5000);
   }, [playerData?.lastEventDescription]);
 
+  // NEW: Coat offer modal trigger
   useEffect(() => {
     if (playerData?.coatOfferPending) {
       setShowCoatOfferModal(true);
     }
   }, [playerData?.coatOfferPending]);
 
+  // NEW: Cop encounter modal trigger
   useEffect(() => {
     if (playerData?.copEncounterPending) {
       setShowCopModal(true);
     }
   }, [playerData?.copEncounterPending]);
 
+  // NEW: Day 30 settlement trigger
   useEffect(() => {
     if (playerData?.daysPlayed >= 30 && sessionActive) {
       setShowDay30Modal(true);
@@ -135,6 +146,8 @@ export default function App() {
   const inGame = wallet && sessionActive && playerData && playerData.netWorthGoal > 0;
   const days = playerData?.daysPlayed ?? 0;
   const cash = playerData?.cash ?? 0;
+  
+  // V2 fields
   const debt = playerData?.debt ?? 0;
   const bankBalance = playerData?.bankBalance ?? 0;
   const capacity = playerData?.trenchcoatCapacity ?? 100;
@@ -175,6 +188,7 @@ export default function App() {
     }
   }
   
+  // Bank modal handlers
   const handleBankSubmit = () => {
     const amount = parseInt(bankAmount);
     if (isNaN(amount) || amount <= 0) {
@@ -200,6 +214,7 @@ export default function App() {
     setBankAmount("");
   };
   
+  // Loan modal handler
   const handleLoanSubmit = () => {
     const amount = parseInt(loanAmount);
     if (isNaN(amount) || amount <= 0) {
@@ -222,6 +237,7 @@ export default function App() {
     setLoanAmount("");
   };
 
+  // NEW: Coat offer handlers
   const handleAcceptCoatOffer = async () => {
     if (cash < 5000) {
       alert("Not enough cash! Need $5,000");
@@ -250,12 +266,16 @@ export default function App() {
         <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/75 pointer-events-none" />
 
         <div className="relative z-10 mx-auto px-2 sm:px-4 py-4 max-w-7xl">
-          {errorMessage && (errorContext === 'critical' || errorContext === 'session-lost') && (
-            <div className="p-4 mb-4 bg-red-900/90 border-2 border-red-500 text-center font-semibold rounded-lg animate-fadeIn cyber-card">
-              ⚠️ {errorMessage}
+                    {/* NICE TOP POPUP ERROR - Responsive & fits mobile */}
+          {errorMessage && (
+            <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none w-full max-w-md px-4">
+              <div className="pointer-events-auto">
+                <ErrorToast message={errorMessage} onClose={() => {}} />
+              </div>
             </div>
           )}
 
+          {/* START SCREEN - Not connected */}
           {!wallet && (
             <div className="flex flex-col items-center justify-center pt-6 pb-4 animate-fadeIn">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 neon-flicker">
@@ -265,55 +285,37 @@ export default function App() {
                 Trade. Hustle. Survive. Collect ICE.
               </p>
 
-              <div className="relative">
-                <button
-                  onClick={connectWallet}
-                  disabled={loading}
-                  className="mt-6 px-8 py-3 rounded-lg font-semibold neon-button cyber-sweep text-lg"
-                >
-                  {loading ? "Connecting..." : "Connect Wallet"}
-                </button>
-
-                {errorContext === 'wallet-connect' && errorMessage && (
-                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 pointer-events-none">
-                    <div className="pointer-events-auto">
-                      <ErrorToast message={errorMessage} onClose={() => {}} />
-                    </div>
-                  </div>
-                )}
-              </div>
+              <button
+                onClick={connectWallet}
+                disabled={loading}
+                className="mt-6 px-8 py-3 rounded-lg font-semibold neon-button cyber-sweep text-lg"
+              >
+                {loading ? "Connecting..." : "Connect Wallet"}
+              </button>
             </div>
           )}
 
+          {/* SESSION START SCREEN */}
           {wallet && !sessionActive && (
             <div className="flex flex-col items-center justify-center pt-20 animate-fadeIn">
               <h2 className="text-3xl font-bold mb-4 neon-flicker">Session Required</h2>
               <p className="text-lg opacity-90 mb-8 max-w-md text-center">
                 Start a session to play. Starting conditions: $2,000 cash, $5,500 debt, 100 HP
               </p>
-
-              <div className="relative">
-                <button
-                  onClick={startSession}
-                  disabled={loading}
-                  className="px-12 py-6 rounded-full neon-button neon-button--buy text-3xl font-bold cyber-sweep shadow-2xl"
-                >
-                  {currentAction || "START SESSION"}
-                </button>
-
-                {errorContext === 'session-start' && errorMessage && (
-                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 pointer-events-none">
-                    <div className="pointer-events-auto">
-                      <ErrorToast message={errorMessage} onClose={() => {}} />
-                    </div>
-                  </div>
-                )}
-              </div>
+              <button
+                onClick={startSession}
+                disabled={loading}
+                className="px-12 py-6 rounded-full neon-button neon-button--buy text-3xl font-bold cyber-sweep shadow-2xl"
+              >
+                {currentAction || "START SESSION"}
+              </button>
             </div>
           )}
 
+          {/* GAME HEADER */}
           {wallet && inGame && (
             <>
+              {/* Top Bar */}
               <div className="flex justify-between items-center mb-4 px-2">
                 <h1 className="text-xl sm:text-2xl font-bold neon-flicker neon-text-glow">
                   DopeWars
@@ -334,6 +336,7 @@ export default function App() {
                 </div>
               </div>
 
+              {/* MAIN STATS */}
               <div className="backpanel cyber-card cyber-scanlines mb-3 p-3">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
                   <div>
@@ -354,6 +357,7 @@ export default function App() {
                   </div>
                 </div>
 
+                {/* Health and Space bars */}
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   <div>
                     <div className="text-xs text-gray-400 mb-1">Health: {health}/100</div>
@@ -376,71 +380,57 @@ export default function App() {
                 </div>
               </div>
 
+              {/* DAY & LOCATION */}
               {isMobile ? (
-  <div className="px-2 mb-3">
-    <div className="backpanel cyber-card cyber-scanlines cyber-trace px-3 py-3 flex flex-col items-center gap-2 text-center">
-      <p className="text-sm font-semibold opacity-90">
-        {locationName} · Day {days} {hasGun && '🔫'}
-      </p>
-      <div className="flex items-center justify-center gap-2 text-xs">
-        <span className="font-semibold">ICE: {ice}</span>
-        <div className="relative inline-block">
-          <button
-            onClick={claimDailyIce}
-            disabled={loading}
-            className="px-3 py-1 rounded-full text-xs font-semibold neon-button cyber-sweep"
-          >
-            Claim
-          </button>
-          {errorContext === 'claimDailyIce' && errorMessage && (
-            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 pointer-events-none">
-              <div className="pointer-events-auto">
-                <ErrorToast message={errorMessage} onClose={() => {}} />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  </div>
-) : (
-                  <div className="flex flex-col sm:flex-row justify-between items-center gap-2 mb-3 px-2">
-    <div className="flex-1 p-3">
-      <div className="backpanel cyber-card cyber-scanlines cyber-trace text-center px-2 py-2 h-[64px] flex items-center justify-center">
-        <p className="text-sm font-semibold opacity-90">
-          {locationName} · Day {days}
-        </p>
-      </div>
-    </div>
-    <div className="w-80 p-3">
-      <div className="backpanel cyber-card cyber-scanlines cyber-trace text-center px-2 py-2 h-[64px] flex items-center justify-center">
-        <div className="flex flex-col leading-tight">
-          <p className="text-sm font-semibold opacity-90 mb-0.5">
-            ICE: {ice}
-          </p>
-          <div className="relative inline-block">
-            <button
-              onClick={claimDailyIce}
-              disabled={loading}
-              className="px-3 py-0.5 rounded text-xs font-semibold neon-button cyber-sweep"
-            >
-              Claim Daily ICE
-            </button>
-            {errorContext === 'claimDailyIce' && errorMessage && (
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 pointer-events-none">
-                <div className="pointer-events-auto">
-                  <ErrorToast message={errorMessage} onClose={() => {}} />
+                <div className="px-2 mb-3">
+                  <div className="backpanel cyber-card cyber-scanlines cyber-trace px-3 py-3 flex flex-col items-center gap-2 text-center">
+                    <p className="text-sm font-semibold opacity-90">
+                      {locationName} · Day {days} {hasGun && '🔫'}
+                    </p>
+                    <div className="flex items-center justify-center gap-2 text-xs">
+                      <span className="font-semibold">ICE: {ice}</span>
+                      <button
+                        onClick={claimDailyIce}
+                        disabled={loading}
+                        className="px-3 py-1 rounded-full text-xs font-semibold neon-button cyber-sweep"
+                      >
+                        Claim
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+              ) : (
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-2 mb-3 px-2">
+                  <div className="flex-1 p-3">
+                    <div className="backpanel cyber-card cyber-scanlines cyber-trace text-center px-2 py-2 h-[64px] flex items-center justify-center">
+                      <p className="text-sm font-semibold opacity-90">
+                        {locationName} · Day {days}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="w-80 p-3">
+                    <div className="backpanel cyber-card cyber-scanlines cyber-trace text-center px-2 py-2 h-[64px] flex items-center justify-center">
+                      <div className="flex flex-col leading-tight">
+                        <p className="text-sm font-semibold opacity-90 mb-0.5">
+                          ICE: {ice}
+                        </p>
+                        <button
+                          onClick={claimDailyIce}
+                          disabled={loading}
+                          className="px-3 py-0.5 rounded text-xs font-semibold neon-button cyber-sweep"
+                        >
+                          Claim Daily ICE
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-col md:flex-row gap-4 items-start">
+                {/* LEFT column */}
                 <div className="flex flex-col w-full md:flex-1 backpanel cyber-card cyber-scanlines cyber-trace pt-3 pb-3">
+                  {/* MOBILE prices carousel */}
                   {isMobile && prices.length > 0 && (
                     <div className="px-2 mb-3">
                       <h2 className="text-lg font-bold mb-2 text-center neon-flicker">
@@ -474,7 +464,11 @@ export default function App() {
 
                   {safeInventory.length > 0 ? (
                     <div
-                      className={`overflow-x-auto flex gap-3 px-1 ${isMobile ? "snap-x snap-mandatory inventory-grid" : "grid grid-cols-2 sm:grid-cols-2"}`}
+                      className={`overflow-x-auto flex gap-3 px-1 ${
+                        isMobile
+                          ? "snap-x snap-mandatory inventory-grid"
+                          : "grid grid-cols-2 sm:grid-cols-2"
+                      }`}
                     >
                       {safeInventory.map((d, i) => {
                         const qty: number = Number(quantities[i] ?? 1);
@@ -498,10 +492,16 @@ export default function App() {
                         return (
                           <div
                             key={i}
-                            className={`p-1 ${isMobile ? "snap-center shrink-0 w-[65vw]" : "w-full"}`}
+                            className={`p-1 ${
+                              isMobile
+                                ? "snap-center shrink-0 w-[65vw]"
+                                : "w-full"
+                            }`}
                           >
                             <div
-                              className={`backpanel cyber-card cyber-scanlines cyber-trace inventory-card flex flex-col w-full ${isMobile ? "h-auto" : "h-[198px]"}`}
+                              className={`backpanel cyber-card cyber-scanlines cyber-trace inventory-card flex flex-col w-full ${
+                                isMobile ? "h-auto" : "h-[198px]"
+                              }`}
                             >
                               <div className="font-semibold text-lg mb-1">
                                 {d.name}
@@ -511,7 +511,8 @@ export default function App() {
                                 const price = Number(d.price ?? 0);
                                 const rawQty = quantities[i];
                                 const qtySafe =
-                                  Number.isFinite(Number(rawQty)) && Number(rawQty) > 0
+                                  Number.isFinite(Number(rawQty)) &&
+                                  Number(rawQty) > 0
                                     ? Number(rawQty)
                                     : 1;
 
@@ -550,7 +551,11 @@ export default function App() {
                                 <button
                                   onClick={() => sell(i, qty)}
                                   disabled={!canSell || loading}
-                                  className={`flex-1 px-3 py-1 rounded-full text-sm font-semibold neon-button cyber-sweep ${canSell ? "neon-button--sell" : "neon-button--disabled cursor-not-allowed"}`}
+                                  className={`flex-1 px-3 py-1 rounded-full text-sm font-semibold neon-button cyber-sweep ${
+                                    canSell
+                                      ? "neon-button--sell"
+                                      : "neon-button--disabled cursor-not-allowed"
+                                  }`}
                                 >
                                   Sell
                                 </button>
@@ -566,17 +571,8 @@ export default function App() {
                     </p>
                   )}
 
-                  {(errorContext === 'buy' || errorContext === 'sell') && errorMessage && (
-                    <div className="relative mt-3">
-                      <div className="absolute left-1/2 -translate-x-1/2 z-50 pointer-events-none">
-                        <div className="pointer-events-auto">
-                          <ErrorToast message={errorMessage} onClose={() => {}} />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="relative flex flex-wrap gap-3 justify-center mt-3 mb-2">
+                  {/* CONTROLS */}
+                  <div className="flex flex-wrap gap-3 justify-center mt-3 mb-2">
                     <button
                       onClick={endDay}
                       disabled={loading}
@@ -588,7 +584,11 @@ export default function App() {
                       onClick={hustle}
                       disabled={loading || cash !== 0}
                       title={cash !== 0 ? "Cash must be 0 to Hustle" : ""}
-                      className={`px-5 py-2 rounded font-semibold neon-button cyber-sweep ${cash === 0 ? "bg-purple-700" : "bg-gray-700 opacity-60 cursor-not-allowed"}`}
+                      className={`px-5 py-2 rounded font-semibold neon-button cyber-sweep ${
+                        cash === 0
+                          ? "bg-purple-700"
+                          : "bg-gray-700 opacity-60 cursor-not-allowed"
+                      }`}
                     >
                       💪 Hustle (0/3)
                     </button>
@@ -596,25 +596,25 @@ export default function App() {
                       onClick={stash}
                       disabled={loading || cash !== 0}
                       title={cash !== 0 ? "Cash must be 0 to Stash" : ""}
-                      className={`px-5 py-2 rounded font-semibold neon-button cyber-sweep ${cash === 0 ? "bg-pink-600" : "bg-gray-700 opacity-60 cursor-not-allowed"}`}
+                      className={`px-5 py-2 rounded font-semibold neon-button cyber-sweep ${
+                        cash === 0
+                          ? "bg-pink-600"
+                          : "bg-gray-700 opacity-60 cursor-not-allowed"
+                      }`}
                     >
                       🎲 Find Stash (0/3)
                     </button>
                     <button
                       onClick={settleGame}
                       disabled={loading || days < 5}
-                      className={`px-5 py-2 rounded font-semibold neon-button cyber-sweep ${days >= 5 ? "bg-gray-800 border border-white" : "bg-gray-700 opacity-60 cursor-not-allowed"}`}
+                      className={`px-5 py-2 rounded font-semibold neon-button cyber-sweep ${
+                        days >= 5
+                          ? "bg-gray-800 border border-white"
+                          : "bg-gray-700 opacity-60 cursor-not-allowed"
+                      }`}
                     >
-                      End Game
+                      Settle & Restart
                     </button>
-
-                    {(errorContext === 'endDay' || errorContext === 'hustle' || errorContext === 'stash' || errorContext === 'settlement') && errorMessage && (
-                      <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 pointer-events-none">
-                        <div className="pointer-events-auto">
-                          <ErrorToast message={errorMessage} onClose={() => {}} />
-                        </div>
-                      </div>
-                    )}
                   </div>
 
                   {days < 5 && (
@@ -624,7 +624,9 @@ export default function App() {
                   )}
                 </div>
 
+                {/* RIGHT column */}
                 <div className="flex flex-col gap-2 w-full md:w-80">
+                  {/* LAST EVENT PANEL */}
                   <div
                     className={`p-4 backpanel cyber-card cyber-scanlines cyber-trace event-panel ${eventPanelClass}`}
                   >
@@ -636,7 +638,8 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="relative p-4 backpanel cyber-card cyber-scanlines cyber-trace">
+                  {/* BANK & LOAN PANEL */}
+                  <div className="p-4 backpanel cyber-card cyber-scanlines cyber-trace">
                     <h2 className="text-lg font-bold mb-2 text-center neon-flicker">
                       💰 Bank & Loan
                     </h2>
@@ -669,17 +672,10 @@ export default function App() {
                         💳 Pay Loan
                       </button>
                     </div>
-
-                    {(errorContext === 'depositBank' || errorContext === 'withdrawBank' || errorContext === 'payLoan') && errorMessage && (
-                      <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 pointer-events-none">
-                        <div className="pointer-events-auto">
-                          <ErrorToast message={errorMessage} onClose={() => {}} />
-                        </div>
-                      </div>
-                    )}
                   </div>
 
-                  <div className="relative p-4 backpanel cyber-card cyber-scanlines cyber-trace">
+                  {/* UPGRADES PANEL */}
+                  <div className="p-4 backpanel cyber-card cyber-scanlines cyber-trace">
                     <h2 className="text-lg font-bold mb-2 text-center neon-flicker">
                       🛠️ Upgrades
                     </h2>
@@ -698,23 +694,16 @@ export default function App() {
                         </div>
                       </div>
                       
-                      <button
+                                            <button
                         onClick={buyGun}
-                        disabled={loading || cash < 3000 || hasGun}
-                        className="px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-orange-700"
+                        disabled={loading || hasGun} // Only disable if loading or already owned
+                        className={`px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-orange-700 ${
+                          cash < 3000 && !hasGun ? "opacity-70" : ""
+                        }`}
                         title="Cost: $3,000"
                       >
                         {hasGun ? '✅ Gun Owned' : '🔫 Buy Gun'}
                       </button>
-
-                      {errorContext === 'buyGun' && errorMessage && (
-                        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 pointer-events-none">
-                          <div className="pointer-events-auto">
-                            <ErrorToast message={errorMessage} onClose={() => {}} />
-                          </div>
-                        </div>
-                      )}
-
                       {!hasGun && (
                         <div className="text-xs text-center opacity-80">
                           Cost: $3,000 (helps in combat)
@@ -723,6 +712,7 @@ export default function App() {
                     </div>
                   </div>
 
+                  {/* DESKTOP PRICES PANEL */}
                   {!isMobile && prices.length > 0 && (
                     <div className="p-4 backpanel cyber-card cyber-scanlines cyber-trace">
                       <h2 className="text-lg font-bold mb-2 text-center neon-flicker">
@@ -737,7 +727,8 @@ export default function App() {
                     </div>
                   )}
 
-                  <div className="relative p-4 backpanel cyber-card cyber-scanlines cyber-trace">
+                  {/* TRAVEL PANEL */}
+                  <div className="p-4 backpanel cyber-card cyber-scanlines cyber-trace">
                     <h2 className="text-lg font-bold mb-2 text-center neon-flicker">
                       Travel
                     </h2>
@@ -750,21 +741,15 @@ export default function App() {
                           key={i}
                           disabled={loading || locIndex === i}
                           onClick={() => travelTo(i)}
-                          className={`rounded-full neon-button cyber-sweep py-2 text-sm text-center ${isMobile ? "w-full" : "px-4"}`}
+                          className={`rounded-full neon-button cyber-sweep py-2 text-sm text-center ${
+                            isMobile ? "w-full" : "px-4"
+                          }`}
                           style={isMobile ? { minWidth: "120px" } : {}}
                         >
                           {city}
                         </button>
                       ))}
                     </div>
-
-                    {errorContext === 'travelTo' && errorMessage && (
-                      <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 pointer-events-none">
-                        <div className="pointer-events-auto">
-                          <ErrorToast message={errorMessage} onClose={() => {}} />
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -773,7 +758,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* All modals unchanged */}
+      {/* BANK MODAL */}
       {showBankModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4">
@@ -816,6 +801,7 @@ export default function App() {
         </div>
       )}
 
+      {/* LOAN MODAL */}
       {showLoanModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4">
@@ -859,6 +845,7 @@ export default function App() {
         </div>
       )}
 
+      {/* COP ENCOUNTER MODAL */}
       {showCopModal && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4 border-2 border-red-500">
@@ -895,6 +882,8 @@ export default function App() {
         </div>
       )}
 
+
+      {/* COAT OFFER MODAL AND UTF */}
       {showCoatOfferModal && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4 border-2 border-purple-500">
@@ -935,6 +924,7 @@ export default function App() {
         </div>
       )}
 
+      {/* DAY 30 SETTLEMENT MODAL */}
       {showDay30Modal && (
         <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-8 max-w-lg w-full mx-4 border-4 border-red-500">
@@ -987,6 +977,7 @@ export default function App() {
         </div>
       )}
 
+      {/* POPUP EVENT */}
       <EventPopup
         visible={showPopup}
         image={popupImage}
@@ -994,6 +985,7 @@ export default function App() {
         onClose={() => setShowPopup(false)}
       />
 
+      {/* LEADERBOARD */}
       {showLeaderboard && (
         <LeaderboardModal onClose={() => setShowLeaderboard(false)} />
       )}
