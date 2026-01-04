@@ -283,7 +283,7 @@ export default function App() {
               <div 
                 className="fixed inset-0 -z-10"
                 style={{
-                  backgroundImage: "url(/cyberpunk-bg.jpg)",
+                  backgroundImage: "url(/city.jpg)",
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   backgroundRepeat: "no-repeat",
@@ -337,12 +337,12 @@ export default function App() {
                   DopeWars Quick Guide
                 </h2>
 
-                {/* Tutorial cards with hover effect */}
+                                {/* Tutorial cards with hover effect */}
                 <div className="max-w-3xl w-full space-y-4 mb-1">
-                  {/* Card 1 */}
+                  {/* Card 1 - Gear Up */}
                   <div className="backpanel cyber-card p-4 rounded-xl border border-purple-500/30 flex items-center gap-5 hover:shadow-2xl hover:shadow-purple-900/60 hover:-translate-y-1 transition-all duration-300">
-                    <div className="flex-shrink-0 w-20 h-20 bg-gray-800/50 rounded-lg border border-purple-600/30 flex items-center justify-center">
-                      <span className="text-4xl">💰</span>
+                    <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-purple-500/60 neon-glow-lg">
+                      <img src="/gear-up.png" alt="Gear Up" className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <h3 className="text-lg font-bold mb-1">Gear Up</h3>
@@ -353,10 +353,10 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Card 2 */}
+                  {/* Card 2 - Trade Smart */}
                   <div className="backpanel cyber-card p-4 rounded-xl border border-purple-500/30 flex items-center gap-5 hover:shadow-2xl hover:shadow-purple-900/60 hover:-translate-y-1 transition-all duration-300">
-                    <div className="flex-shrink-0 w-20 h-20 bg-gray-800/50 rounded-lg border border-purple-600/30 flex items-center justify-center">
-                      <span className="text-4xl">🗽</span>
+                    <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-purple-500/60 neon-glow-lg">
+                      <img src="/trade-smart.png" alt="Trade Smart" className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <h3 className="text-lg font-bold mb-1">Trade Smart</h3>
@@ -366,10 +366,10 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Card 3 */}
+                  {/* Card 3 - Upgrade & Survive */}
                   <div className="backpanel cyber-card p-4 rounded-xl border border-purple-500/30 flex items-center gap-5 hover:shadow-2xl hover:shadow-purple-900/60 hover:-translate-y-1 transition-all duration-300">
-                    <div className="flex-shrink-0 w-20 h-20 bg-gray-800/50 rounded-lg border border-purple-600/30 flex items-center justify-center">
-                      <span className="text-4xl">🔫</span>
+                    <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-purple-500/60 neon-glow-lg">
+                      <img src="/upgrade-survive.png" alt="Upgrade & Survive" className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <h3 className="text-lg font-bold mb-1">Upgrade & Survive</h3>
@@ -380,7 +380,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Card 4 - ICE */}
+                  {/* Card 4 - ICE (already perfect) */}
                   <div className="backpanel cyber-card p-4 rounded-xl border border-green-500/50 flex items-center gap-5 hover:shadow-2xl hover:shadow-green-900/60 hover:-translate-y-1 transition-all duration-300">
                     <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-green-500/60 neon-glow-lg">
                       <img src="/ICE.png" alt="ICE" className="w-full h-full object-cover" />
@@ -389,7 +389,7 @@ export default function App() {
                       <h3 className="text-lg font-bold mb-1 text-green-300">Win Big</h3>
                       <p className="text-base opacity-90 text-green-200">
                         Reach $1M → earn 10 ICE!<br />
-                        Survive 30 days → consolation rewards.
+                        Survive 30 days for consolation rewards.
                       </p>
                     </div>
                   </div>
@@ -431,31 +431,31 @@ export default function App() {
                 </div>
               </div>
 
-              {/* MAIN STATS */}
-              <div className="backpanel cyber-card cyber-scanlines mb-3 p-3">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                                          {/* MAIN STATS - ultra-tight on mobile */}
+              <div className="backpanel cyber-card cyber-scanlines mb-1 p-2 md:mb-3 md:p-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-1 md:gap-3 text-center">
                   <div>
                     <div className="text-xs text-gray-400">Cash</div>
-                    <div className="text-green-400 font-bold text-lg">${formatMoney(cash)}</div>
+                    <div className="text-green-400 font-bold text-base md:text-lg">${formatMoney(cash)}</div>
                   </div>
                   <div>
                     <div className="text-xs text-gray-400">Debt</div>
-                    <div className="text-red-400 font-bold text-lg">${formatMoney(debt)}</div>
+                    <div className="text-red-400 font-bold text-base md:text-lg">${formatMoney(debt)}</div>
                   </div>
                   <div>
                     <div className="text-xs text-gray-400">Bank</div>
-                    <div className="text-blue-400 font-bold text-lg">${formatMoney(bankBalance)}</div>
+                    <div className="text-blue-400 font-bold text-base md:text-lg">${formatMoney(bankBalance)}</div>
                   </div>
                   <div>
                     <div className="text-xs text-gray-400">Net Worth</div>
-                    <div className="text-purple-400 font-bold text-lg">${formatMoney(cash + bankBalance - debt)}</div>
+                    <div className="text-purple-400 font-bold text-base md:text-lg">${formatMoney(cash + bankBalance - debt)}</div>
                   </div>
                 </div>
 
-                {/* Health and Space bars */}
-                <div className="mt-3 grid grid-cols-2 gap-3">
+                {/* Health and Space bars - ultra-tight */}
+                <div className="mt-1 md:mt-3 grid grid-cols-2 gap-1 md:gap-3">
                   <div>
-                    <div className="text-xs text-gray-400 mb-1">Health: {health}/100</div>
+                    <div className="text-xs text-gray-400 mb-0.5">Health: {health}/100</div>
                     <div className="w-full bg-gray-700 rounded-full h-2">
                       <div 
                         className={`h-2 rounded-full ${health > 50 ? 'bg-green-500' : health > 25 ? 'bg-yellow-500' : 'bg-red-500'}`}
@@ -464,7 +464,7 @@ export default function App() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-400 mb-1">Space: {totalDrugs}/{capacity} {hasGun && '🔫'}</div>
+                    <div className="text-xs text-gray-400 mb-0.5">Space: {totalDrugs}/{capacity} {hasGun && '🔫'}</div>
                     <div className="w-full bg-gray-700 rounded-full h-2">
                       <div 
                         className={`h-2 rounded-full ${totalDrugs / capacity < 0.8 ? 'bg-blue-500' : 'bg-orange-500'}`}
