@@ -317,24 +317,30 @@ export default function App() {
               </div>
             </>
           )}
-          {/* SESSION START SCREEN - uses cyberpunk-bg.jpg */}
-                          {wallet && !sessionActive && (
+                   {/* SESSION START SCREEN - Quick Tutorial with Effects */}
+          {wallet && !sessionActive && (
             <>
-              <div className="fixed inset-0 -z-10" style={{
-                backgroundImage: "url(/cyberpunk-bg.jpg)",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-              }} />
+              {/* Fullscreen background */}
+              <div 
+                className="fixed inset-0 -z-10"
+                style={{
+                  backgroundImage: "url(/cyberpunk-bg.jpg)",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                }}
+              />
 
+              {/* Content overlay */}
               <div className="min-h-screen flex flex-col items-center justify-center pt-0 pb-4 animate-fadeIn px-4">
                 <h2 className="text-3xl md:text-4xl font-bold mb-5 neon-flicker text-center">
                   DopeWars Quick Guide
                 </h2>
 
+                {/* Tutorial cards with hover effect */}
                 <div className="max-w-3xl w-full space-y-4 mb-1">
                   {/* Card 1 */}
-                  <div className="backpanel cyber-card p-4 rounded-xl border border-purple-500/30 flex items-center gap-5">
+                  <div className="backpanel cyber-card p-4 rounded-xl border border-purple-500/30 flex items-center gap-5 hover:shadow-2xl hover:shadow-purple-900/60 hover:-translate-y-1 transition-all duration-300">
                     <div className="flex-shrink-0 w-20 h-20 bg-gray-800/50 rounded-lg border border-purple-600/30 flex items-center justify-center">
                       <span className="text-4xl">💰</span>
                     </div>
@@ -348,19 +354,20 @@ export default function App() {
                   </div>
 
                   {/* Card 2 */}
-                  <div className="backpanel cyber-card p-4 rounded-xl border border-purple-500/30 flex items-center gap-5">
+                  <div className="backpanel cyber-card p-4 rounded-xl border border-purple-500/30 flex items-center gap-5 hover:shadow-2xl hover:shadow-purple-900/60 hover:-translate-y-1 transition-all duration-300">
                     <div className="flex-shrink-0 w-20 h-20 bg-gray-800/50 rounded-lg border border-purple-600/30 flex items-center justify-center">
                       <span className="text-4xl">🗽</span>
                     </div>
                     <div>
                       <h3 className="text-lg font-bold mb-1">Trade Smart</h3>
                       <p className="text-base opacity-90">
-                        Travel NYC boroughs to buy low, sell high.                      </p>
+                        Travel NYC boroughs to buy low, sell high.
+                      </p>
                     </div>
                   </div>
 
                   {/* Card 3 */}
-                  <div className="backpanel cyber-card p-4 rounded-xl border border-purple-500/30 flex items-center gap-5">
+                  <div className="backpanel cyber-card p-4 rounded-xl border border-purple-500/30 flex items-center gap-5 hover:shadow-2xl hover:shadow-purple-900/60 hover:-translate-y-1 transition-all duration-300">
                     <div className="flex-shrink-0 w-20 h-20 bg-gray-800/50 rounded-lg border border-purple-600/30 flex items-center justify-center">
                       <span className="text-4xl">🔫</span>
                     </div>
@@ -374,7 +381,7 @@ export default function App() {
                   </div>
 
                   {/* Card 4 - ICE */}
-                  <div className="backpanel cyber-card p-4 rounded-xl border border-green-500/50 flex items-center gap-5">
+                  <div className="backpanel cyber-card p-4 rounded-xl border border-green-500/50 flex items-center gap-5 hover:shadow-2xl hover:shadow-green-900/60 hover:-translate-y-1 transition-all duration-300">
                     <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-green-500/60 neon-glow-lg">
                       <img src="/ICE.png" alt="ICE" className="w-full h-full object-cover" />
                     </div>
@@ -388,10 +395,11 @@ export default function App() {
                   </div>
                 </div>
 
+                {/* Button with pulse animation */}
                 <button
                   onClick={startSession}
                   disabled={loading}
-                  className="mt-4 px-10 py-5 rounded-full text-lg font-bold neon-button neon-button--buy cyber-sweep shadow-2xl"
+                  className="mt-4 px-10 py-5 rounded-full text-lg font-bold neon-button neon-button--buy cyber-sweep shadow-2xl animate-pulse-slow"
                 >
                   {currentAction || "START HUSTLING"}
                 </button>

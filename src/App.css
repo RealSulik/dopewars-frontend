@@ -577,3 +577,16 @@ input[type=number] {
 
   color: #caffda !important; /* soft mint text */
 }
+
+@keyframes pulse-slow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); 
+  }
+  50% { 
+    box-shadow: 0 0 35px rgba(16, 185, 129, 0.9); 
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
