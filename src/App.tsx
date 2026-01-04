@@ -5,7 +5,7 @@ import { useGame } from "./hooks/useGame";
 import { useEffect, useState } from "react";
 import EventPopup from "./EventPopup";
 import LeaderboardModal from "./components/LeaderboardModal";
-import ErrorToast from "./components/ErrorToast"; // ← Now used for top popup
+import ErrorToast from "./components/ErrorToast";
 
 function formatMoney(v: number) {
   return Math.round(v).toLocaleString();
@@ -257,7 +257,8 @@ export default function App() {
       <div
         className="min-h-screen text-white relative"
         style={{
-          backgroundImage: inGame ? `url(${backgroundFile})` : "url(/cyberpunk-bg.jpg)",
+          // Only show city background when actually in game
+          backgroundImage: inGame ? `url(${backgroundFile})` : "none",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundAttachment: "fixed",
@@ -266,7 +267,7 @@ export default function App() {
         <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/75 pointer-events-none" />
 
         <div className="relative z-10 mx-auto px-2 sm:px-4 py-4 max-w-7xl">
-                    {/* NICE TOP POPUP ERROR - Responsive & fits mobile */}
+          {/* NICE TOP POPUP ERROR */}
           {errorMessage && (
             <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none w-full max-w-md px-4">
               <div className="pointer-events-auto">
@@ -275,44 +276,130 @@ export default function App() {
             </div>
           )}
 
-          {/* START SCREEN - Not connected */}
-          {!wallet && (
-            <div className="flex flex-col items-center justify-center pt-6 pb-4 animate-fadeIn">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 neon-flicker">
-                DopeWars on Base
-              </h2>
-              <p className="text-lg opacity-90 mb-10">
-                Trade. Hustle. Survive. Collect ICE.
-              </p>
+          {/* START SCREEN - Not connected - uses home.png */}
+                     {!wallet && (
+            <>
+              {/* Fullscreen background */}
+              <div 
+                className="fixed inset-0 -z-10"
+                style={{
+                  backgroundImage: "url(/cyberpunk-bg.jpg)",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                }}
+              />
 
-              <button
-                onClick={connectWallet}
-                disabled={loading}
-                className="mt-6 px-8 py-3 rounded-lg font-semibold neon-button cyber-sweep text-lg"
-              >
-                {loading ? "Connecting..." : "Connect Wallet"}
-              </button>
-            </div>
+              {/* Content overlay */}
+              <div className="min-h-screen flex flex-col items-center justify-center pt-1 pb-4 animate-fadeIn px-4">
+                <h2 className="text-3xl md:text-4xl font-bold mb-2 neon-flicker text-center">
+                  DopeWars on Base
+                </h2>
+                <p className="text-lg opacity-90 mb-1 text-center max-w-2xl px-4">
+                  Trade. Hustle. Survive. Collect ICE.
+                </p>
+
+                <div className="relative max-w-4xl w-full">
+                  <img
+                    src="/home.png"
+                    alt="DopeWars"
+                    className="w-full h-auto rounded-xl shadow-2xl border-4 border-purple-600/50 neon-glow-lg"
+                  />
+                </div>
+
+                <button
+                  onClick={connectWallet}
+                  disabled={loading}
+                  className="mt-2 px-8 py-4 rounded-full text-lg font-bold neon-button neon-button--buy cyber-sweep shadow-2xl"
+                >
+                  {loading ? "Connecting..." : "Connect Wallet"}
+                </button>
+              </div>
+            </>
+          )}
+          {/* SESSION START SCREEN - uses cyberpunk-bg.jpg */}
+                          {wallet && !sessionActive && (
+            <>
+              <div className="fixed inset-0 -z-10" style={{
+                backgroundImage: "url(/cyberpunk-bg.jpg)",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+              }} />
+
+              <div className="min-h-screen flex flex-col items-center justify-center pt-0 pb-4 animate-fadeIn px-4">
+                <h2 className="text-3xl md:text-4xl font-bold mb-5 neon-flicker text-center">
+                  DopeWars Quick Guide
+                </h2>
+
+                <div className="max-w-3xl w-full space-y-4 mb-1">
+                  {/* Card 1 */}
+                  <div className="backpanel cyber-card p-4 rounded-xl border border-purple-500/30 flex items-center gap-5">
+                    <div className="flex-shrink-0 w-20 h-20 bg-gray-800/50 rounded-lg border border-purple-600/30 flex items-center justify-center">
+                      <span className="text-4xl">💰</span>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold mb-1">Gear Up</h3>
+                      <p className="text-base opacity-90">
+                        Start with $2,000 cash and $5,500 debt.<br />
+                        Pay it off or face 10% daily interest!
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Card 2 */}
+                  <div className="backpanel cyber-card p-4 rounded-xl border border-purple-500/30 flex items-center gap-5">
+                    <div className="flex-shrink-0 w-20 h-20 bg-gray-800/50 rounded-lg border border-purple-600/30 flex items-center justify-center">
+                      <span className="text-4xl">🗽</span>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold mb-1">Trade Smart</h3>
+                      <p className="text-base opacity-90">
+                        Travel NYC boroughs to buy low, sell high.                      </p>
+                    </div>
+                  </div>
+
+                  {/* Card 3 */}
+                  <div className="backpanel cyber-card p-4 rounded-xl border border-purple-500/30 flex items-center gap-5">
+                    <div className="flex-shrink-0 w-20 h-20 bg-gray-800/50 rounded-lg border border-purple-600/30 flex items-center justify-center">
+                      <span className="text-4xl">🔫</span>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold mb-1">Upgrade & Survive</h3>
+                      <p className="text-base opacity-90">
+                        Buy a gun to fight cops.<br />
+                        Get a bigger coat for more inventory.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Card 4 - ICE */}
+                  <div className="backpanel cyber-card p-4 rounded-xl border border-green-500/50 flex items-center gap-5">
+                    <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-green-500/60 neon-glow-lg">
+                      <img src="/ICE.png" alt="ICE" className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold mb-1 text-green-300">Win Big</h3>
+                      <p className="text-base opacity-90 text-green-200">
+                        Reach $1M → earn 10 ICE!<br />
+                        Survive 30 days → consolation rewards.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={startSession}
+                  disabled={loading}
+                  className="mt-4 px-10 py-5 rounded-full text-lg font-bold neon-button neon-button--buy cyber-sweep shadow-2xl"
+                >
+                  {currentAction || "START HUSTLING"}
+                </button>
+              </div>
+            </>
           )}
 
-          {/* SESSION START SCREEN */}
-          {wallet && !sessionActive && (
-            <div className="flex flex-col items-center justify-center pt-20 animate-fadeIn">
-              <h2 className="text-3xl font-bold mb-4 neon-flicker">Session Required</h2>
-              <p className="text-lg opacity-90 mb-8 max-w-md text-center">
-                Start a session to play. Starting conditions: $2,000 cash, $5,500 debt, 100 HP
-              </p>
-              <button
-                onClick={startSession}
-                disabled={loading}
-                className="px-12 py-6 rounded-full neon-button neon-button--buy text-3xl font-bold cyber-sweep shadow-2xl"
-              >
-                {currentAction || "START SESSION"}
-              </button>
-            </div>
-          )}
-
-          {/* GAME HEADER */}
+          {/* GAME UI - uses city backgrounds */}
           {wallet && inGame && (
             <>
               {/* Top Bar */}
@@ -694,9 +781,9 @@ export default function App() {
                         </div>
                       </div>
                       
-                                            <button
+                      <button
                         onClick={buyGun}
-                        disabled={loading || hasGun} // Only disable if loading or already owned
+                        disabled={loading || hasGun}
                         className={`px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-orange-700 ${
                           cash < 3000 && !hasGun ? "opacity-70" : ""
                         }`}
@@ -758,7 +845,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* BANK MODAL */}
+     {/* BANK MODAL */}
       {showBankModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4">
