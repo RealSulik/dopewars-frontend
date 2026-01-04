@@ -1,5 +1,5 @@
 // src/hooks/useGame.ts
-import { useState, useCallback, useEffect } from "react"; // ADDED useEffect
+import { useState, useCallback, useEffect } from "react";
 import { ethers } from "ethers";
 
 const API_BASE = "https://dopewars-backend.vercel.app/api";
@@ -163,11 +163,11 @@ export function useGame() {
       
     } catch (err) {
       console.warn("Failed to refresh game state:", err);
-      setSessionActive(false); // Mark inactive on error
+      setSessionActive(false);
     }
   }, [wallet]);
 
-  // === NEW: Auto-refresh state when wallet connects ===
+  // Auto-refresh state when wallet connects
   useEffect(() => {
     if (wallet) {
       refreshGameState();
@@ -222,8 +222,8 @@ export function useGame() {
     }
   }, [wallet, sessionActive, refreshGameState]);
 
-  // Settle game
-  const settleGame = useCallback(async () => {
+  // Settle game — no alert, instead return data via callback
+  const settleGame = useCallback(async (onSettlementComplete?: (data: any) => void) => {
     if (!wallet || !provider || !sessionActive) {
       showError("Session not active", "settlement");
       return;
@@ -302,12 +302,12 @@ export function useGame() {
         console.warn("⚠️ Failed to notify backend (PATCH), but on-chain settlement succeeded:", patchErr);
       }
 
-      const resultMessage = data.didWin 
-        ? `🎉 YOU WON at Day ${data.wonAtDay}!\nFinal: $${data.finalNetWorth.toLocaleString()}\nICE Earned: ${data.iceAwarded}\nTotal ICE: ${data.totalIce}`
-        : `Game Complete!\nFinal: $${data.finalNetWorth.toLocaleString()}\nICE Earned: ${data.iceAwarded}\nTotal ICE: ${data.totalIce}`;
-      
-      alert(resultMessage);
+      // Instead of alert, call the callback with data
+      if (onSettlementComplete) {
+        onSettlementComplete(settlementData);
+      }
 
+      // Reset session
       setSessionActive(false);
       setPlayerData(null);
       setInventory([]);
@@ -375,6 +375,6 @@ export function useGame() {
     fightCop: () => sendAction("Fighting...", "fightCop"),
     runFromCop: () => sendAction("Running...", "runFromCop"),
     
-    settleGame,
+    settleGame, // Now accepts optional callback
   };
 }

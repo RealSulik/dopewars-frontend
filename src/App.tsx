@@ -87,12 +87,16 @@ export default function App() {
   // NEW: Day 30 settlement prompt
   const [showDay30Modal, setShowDay30Modal] = useState(false);
 
+  // NEW: Early settlement modal (before day 30)
+  const [showEarlySettlementModal, setShowEarlySettlementModal] = useState(false);
+  const [earlySettlementData, setEarlySettlementData] = useState<any>(null);
+
   const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
 
   // quantity state
   const [quantities, setQuantities] = useState<number[]>(() => [1, 1, 1, 1]);
 
-  // Event popup logic
+  // Event popup logic — ADDED escape image support
   useEffect(() => {
     const event = playerData?.lastEventDescription;
     if (!event) return;
@@ -109,6 +113,9 @@ export default function App() {
     if (ev.includes("mugged") || ev.includes("robbed")) img = "/events/mugged.png";
     else if (ev.includes("police") || ev.includes("busted") || ev.includes("officer hardass")) {
       img = "/events/police.png";
+    } 
+    else if (ev.includes("escaped") || ev.includes("ran away") || ev.includes("got away")) { 
+      img = "/events/escape.png"; // NEW: Different image for successful escape
     }
     else if (ev.includes("stash") || ev.includes("found")) img = "/events/stash.png";
     else if (ev.includes("ice")) img = "/events/ice.png";
@@ -277,7 +284,7 @@ export default function App() {
           )}
 
           {/* START SCREEN - Not connected - uses home.png */}
-                     {!wallet && (
+          {!wallet && (
             <>
               {/* Fullscreen background */}
               <div 
@@ -317,7 +324,8 @@ export default function App() {
               </div>
             </>
           )}
-                   {/* SESSION START SCREEN - Quick Tutorial with Effects */}
+
+          {/* SESSION START SCREEN - Quick Tutorial with Effects */}
           {wallet && !sessionActive && (
             <>
               {/* Fullscreen background */}
@@ -337,7 +345,7 @@ export default function App() {
                   DopeWars Quick Guide
                 </h2>
 
-                                {/* Tutorial cards with hover effect */}
+                {/* Tutorial cards with hover effect */}
                 <div className="max-w-3xl w-full space-y-4 mb-1">
                   {/* Card 1 - Gear Up */}
                   <div className="backpanel cyber-card p-4 rounded-xl border border-purple-500/30 flex items-center gap-5 hover:shadow-2xl hover:shadow-purple-900/60 hover:-translate-y-1 transition-all duration-300">
@@ -431,7 +439,7 @@ export default function App() {
                 </div>
               </div>
 
-                                          {/* MAIN STATS - ultra-tight on mobile */}
+              {/* MAIN STATS - ultra-tight on mobile */}
               <div className="backpanel cyber-card cyber-scanlines mb-1 p-2 md:mb-3 md:p-3">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-1 md:gap-3 text-center">
                   <div>
@@ -700,7 +708,10 @@ export default function App() {
                       🎲 Find Stash (0/3)
                     </button>
                     <button
-                      onClick={settleGame}
+                      onClick={() => settleGame((data) => {
+                        setEarlySettlementData(data);
+                        setShowEarlySettlementModal(true);
+                      })}
                       disabled={loading || days < 5}
                       className={`px-5 py-2 rounded font-semibold neon-button cyber-sweep ${
                         days >= 5
@@ -774,37 +785,35 @@ export default function App() {
                     <h2 className="text-lg font-bold mb-2 text-center neon-flicker">
                       🛠️ Upgrades
                     </h2>
-                    <div className="flex flex-col gap-2">
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="text-sm font-semibold text-purple-400">
-                          🧥 Coat Capacity: {capacity}
-                        </div>
-                        {playerData?.coatOfferPending && (
-                          <div className="text-xs text-yellow-400 animate-pulse">
-                            ⭐ Upgrade offer available!
-                          </div>
-                        )}
-                        <div className="text-xs text-center opacity-60">
-                          Upgrades are rare random offers during travel
-                        </div>
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="text-sm font-semibold text-purple-400">
+                        🧥 Coat Capacity: {capacity}
                       </div>
-                      
-                      <button
-                        onClick={buyGun}
-                        disabled={loading || hasGun}
-                        className={`px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-orange-700 ${
-                          cash < 3000 && !hasGun ? "opacity-70" : ""
-                        }`}
-                        title="Cost: $3,000"
-                      >
-                        {hasGun ? '✅ Gun Owned' : '🔫 Buy Gun'}
-                      </button>
-                      {!hasGun && (
-                        <div className="text-xs text-center opacity-80">
-                          Cost: $3,000 (helps in combat)
+                      {playerData?.coatOfferPending && (
+                        <div className="text-xs text-yellow-400 animate-pulse">
+                          ⭐ Upgrade offer available!
                         </div>
                       )}
+                      <div className="text-xs text-center opacity-60">
+                        Upgrades are rare random offers during travel
+                      </div>
                     </div>
+                    
+                    <button
+                      onClick={buyGun}
+                      disabled={loading || hasGun}
+                      className={`px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-orange-700 ${
+                        cash < 3000 && !hasGun ? "opacity-70" : ""
+                      }`}
+                      title="Cost: $3,000"
+                    >
+                      {hasGun ? '✅ Gun Owned' : '🔫 Buy Gun'}
+                    </button>
+                    {!hasGun && (
+                      <div className="text-xs text-center opacity-80">
+                        Cost: $3,000 (helps in combat)
+                      </div>
+                    )}
                   </div>
 
                   {/* DESKTOP PRICES PANEL */}
@@ -853,7 +862,7 @@ export default function App() {
         </div>
       </div>
 
-     {/* BANK MODAL */}
+      {/* BANK MODAL */}
       {showBankModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4">
@@ -977,8 +986,7 @@ export default function App() {
         </div>
       )}
 
-
-      {/* COAT OFFER MODAL AND UTF */}
+      {/* COAT OFFER MODAL */}
       {showCoatOfferModal && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4 border-2 border-purple-500">
@@ -1067,6 +1075,64 @@ export default function App() {
             
             <p className="text-xs mt-4 text-center opacity-60">
               Settlement will record your score on the blockchain
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* EARLY SETTLEMENT MODAL */}
+      {showEarlySettlementModal && earlySettlementData && (
+        <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-50">
+          <div className="backpanel cyber-card p-8 max-w-lg w-full mx-4 border-4 border-purple-500">
+            <h2 className="text-4xl font-bold mb-4 neon-flicker text-purple-400 text-center">
+              🏁 GAME SETTLED EARLY!
+            </h2>
+            <p className="text-xl mb-6 text-center">
+              You chose to settle before Day 30.
+            </p>
+            
+            <div className="mb-6 p-4 bg-black/50 rounded-lg">
+              <div className="text-center mb-2">
+                <p className="text-sm opacity-80">Final Stats:</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>Cash:</div><div className="text-right text-green-400">${formatMoney(cash)}</div>
+                <div>Bank:</div><div className="text-right text-blue-400">${formatMoney(bankBalance)}</div>
+                <div>Debt:</div><div className="text-right text-red-400">${formatMoney(debt)}</div>
+                <div className="font-bold">Net Worth:</div>
+                <div className="text-right font-bold text-yellow-400">
+                  ${formatMoney(earlySettlementData.finalNetWorth)}
+                </div>
+              </div>
+              
+              {earlySettlementData.didWin && (
+                <div className="mt-4 p-2 bg-green-900/30 rounded text-center">
+                  <p className="text-green-400 font-bold">
+                    🎉 YOU WON at Day {earlySettlementData.wonAtDay}!
+                  </p>
+                  <p className="text-sm opacity-80">You'll receive 10 ICE!</p>
+                </div>
+              )}
+              <div className="mt-4 p-2 bg-purple-900/30 rounded text-center">
+                <p className="text-purple-300 font-bold">
+                  ICE Earned: {earlySettlementData.iceAwarded}
+                </p>
+                <p className="text-sm opacity-80">Total ICE: {earlySettlementData.totalIce}</p>
+              </div>
+            </div>
+            
+            <button
+              onClick={() => {
+                setShowEarlySettlementModal(false);
+                setEarlySettlementData(null);
+              }}
+              className="w-full px-6 py-4 rounded-lg neon-button cyber-sweep bg-gradient-to-r from-purple-700 to-pink-700 text-2xl font-bold"
+            >
+              BACK TO MENU
+            </button>
+            
+            <p className="text-xs mt-4 text-center opacity-60">
+              Your score has been recorded on the blockchain
             </p>
           </div>
         </div>
