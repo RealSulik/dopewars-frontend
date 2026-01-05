@@ -96,38 +96,49 @@ export default function App() {
   // quantity state
   const [quantities, setQuantities] = useState<number[]>(() => [1, 1, 1, 1]);
 
-  // Event popup logic — ADDED escape image support
-  useEffect(() => {
-    const event = playerData?.lastEventDescription;
-    if (!event) return;
+  // Event popup logic — FIXED cop escape image
+useEffect(() => {
+  const event = playerData?.lastEventDescription;
+  if (!event) return;
 
-    const seenKey = "lastEventSeen";
-    const lastSeen = localStorage.getItem(seenKey);
+  const seenKey = "lastEventSeen";
+  const lastSeen = localStorage.getItem(seenKey);
 
-    if (lastSeen === event) return;
-    localStorage.setItem(seenKey, event);
+  if (lastSeen === event) return;
+  localStorage.setItem(seenKey, event);
 
-    const ev = event.toLowerCase();
-    let img = "";
+  const ev = event.toLowerCase();
+  let img = "";
 
-    if (ev.includes("mugged") || ev.includes("robbed")) img = "/events/mugged.png";
-    else if (ev.includes("police") || ev.includes("busted") || ev.includes("officer hardass")) {
-      img = "/events/police.png";
-    } 
-    else if (ev.includes("escaped") || ev.includes("ran away") || ev.includes("got away")) { 
-      img = "/events/escape.png"; // NEW: Different image for successful escape
-    }
-    else if (ev.includes("stash") || ev.includes("found")) img = "/events/stash.png";
-    else if (ev.includes("ice")) img = "/events/ice.png";
+  // NEW: Success escape — higher priority
+  if (ev.includes("got away safely") || ev.includes("ran away from officer hardass")) {
+    img = "/events/escape.png";
+  }
+  // Mugged/robbed
+  else if (ev.includes("mugged") || ev.includes("robbed")) {
+    img = "/events/mugged.png";
+  }
+  // Police bust / fight loss
+  else if (ev.includes("police") || ev.includes("busted") || ev.includes("officer hardass")) {
+    img = "/events/police.png";
+  }
+  // Stash found
+  else if (ev.includes("stash") || ev.includes("found")) {
+    img = "/events/stash.png";
+  }
+  // ICE reward
+  else if (ev.includes("ice")) {
+    img = "/events/ice.png";
+  }
 
-    if (!img) return;
+  if (!img) return;
 
-    setPopupImage(img);
-    setPopupText(event);
-    setShowPopup(true);
+  setPopupImage(img);
+  setPopupText(event);
+  setShowPopup(true);
 
-    setTimeout(() => setShowPopup(false), 5000);
-  }, [playerData?.lastEventDescription]);
+  setTimeout(() => setShowPopup(false), 5000);
+}, [playerData?.lastEventDescription]);
 
   // NEW: Coat offer modal trigger
   useEffect(() => {
