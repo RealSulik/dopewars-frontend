@@ -128,7 +128,7 @@ export default function App() {
     }
     // ICE reward
     else if (ev.includes("ice")) {
-      img = "/events/ice.png";
+      img = "/events/Ice.png";
     }
 
     if (!img) return;
