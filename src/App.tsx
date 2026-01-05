@@ -144,23 +144,10 @@ export default function App() {
     setTimeout(() => setShowPopup(false), 5000);
   }, [playerData?.lastEventDescription]);
 
-  // NEW: Coat offer modal + immediate popup image
+  // NEW: Coat offer modal trigger (unchanged)
   useEffect(() => {
     if (playerData?.coatOfferPending) {
       setShowCoatOfferModal(true);
-      
-      // Trigger coat popup image immediately when offer appears
-      const seenKey = "coatOfferSeen";
-      if (!localStorage.getItem(seenKey)) {
-        localStorage.setItem(seenKey, "true");
-        setPopupImage("/events/coat.png");
-        setPopupText("🧥 Someone offers to sell you a bigger trenchcoat for $5,000!");
-        setShowPopup(true);
-        setTimeout(() => setShowPopup(false), 6000); // Slightly longer to read
-      }
-    } else {
-      // Reset seen flag when offer is gone (accept/decline)
-      localStorage.removeItem("coatOfferSeen");
     }
   }, [playerData?.coatOfferPending]);
 
