@@ -781,40 +781,43 @@ export default function App() {
                   </div>
 
                   {/* UPGRADES PANEL */}
-                  <div className="p-4 backpanel cyber-card cyber-scanlines cyber-trace">
-                    <h2 className="text-lg font-bold mb-2 text-center neon-flicker">
-                      🛠️ Upgrades
-                    </h2>
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="text-sm font-semibold text-purple-400">
-                        🧥 Coat Capacity: {capacity}
-                      </div>
-                      {playerData?.coatOfferPending && (
-                        <div className="text-xs text-yellow-400 animate-pulse">
-                          ⭐ Upgrade offer available!
-                        </div>
-                      )}
-                      <div className="text-xs text-center opacity-60">
-                        Upgrades are rare random offers during travel
-                      </div>
-                    </div>
-                    
-                    <button
-                      onClick={buyGun}
-                      disabled={loading || hasGun}
-                      className={`px-4 py-2 rounded-full text-sm font-semibold neon-button cyber-sweep bg-orange-700 ${
-                        cash < 3000 && !hasGun ? "opacity-70" : ""
-                      }`}
-                      title="Cost: $3,000"
-                    >
-                      {hasGun ? '✅ Gun Owned' : '🔫 Buy Gun'}
-                    </button>
-                    {!hasGun && (
-                      <div className="text-xs text-center opacity-80">
-                        Cost: $3,000 (helps in combat)
-                      </div>
-                    )}
-                  </div>
+<div className="p-4 backpanel cyber-card cyber-scanlines cyber-trace">
+  <h2 className="text-lg font-bold mb-2 text-center neon-flicker">
+    🛠️ Upgrades
+  </h2>
+  <div className="flex flex-col items-center gap-3">
+    <div className="text-center">
+      <div className="text-sm font-semibold text-purple-400">
+        🧥 Coat Capacity: {capacity}
+      </div>
+      {playerData?.coatOfferPending && (
+        <div className="text-xs text-yellow-400 animate-pulse mt-1">
+          ⭐ Upgrade offer available!
+        </div>
+      )}
+      <div className="text-xs text-center opacity-60 mt-1">
+        Upgrades are rare random offers during travel
+      </div>
+    </div>
+    
+    <button
+      onClick={buyGun}
+      disabled={loading || hasGun}
+      className={`w-full max-w-xs px-6 py-3 rounded-full text-sm font-semibold neon-button cyber-sweep bg-orange-700 transition-all ${
+        loading || hasGun ? "opacity-70 cursor-not-allowed" : "hover:shadow-xl hover:shadow-orange-900/50"
+      }`}
+      title={hasGun ? "Already owned" : "Cost: $3,000"}
+    >
+      {hasGun ? '✅ Gun Owned' : '🔫 Buy Gun ($3,000)'}
+    </button>
+    
+    {!hasGun && (
+      <div className="text-xs text-center opacity-80">
+        Helps in combat against cops
+      </div>
+    )}
+  </div>
+</div>
 
                   {/* DESKTOP PRICES PANEL */}
                   {!isMobile && prices.length > 0 && (
