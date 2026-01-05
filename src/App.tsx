@@ -96,7 +96,7 @@ export default function App() {
   // quantity state
   const [quantities, setQuantities] = useState<number[]>(() => [1, 1, 1, 1]);
 
-    // Event popup logic — FIXED cop escape + ADDED coat offer image
+      // Event popup logic — FIXED cop escape (coat image is now in modal only)
   useEffect(() => {
     const event = playerData?.lastEventDescription;
     if (!event) return;
@@ -111,7 +111,7 @@ export default function App() {
     let img = "";
 
     // Success escape
-    else if (ev.includes("got away safely") || ev.includes("ran away from officer hardass")) {
+    if (ev.includes("got away safely") || ev.includes("ran away from officer hardass")) {
       img = "/events/escape.png";
     }
     // Mugged/robbed
@@ -139,7 +139,6 @@ export default function App() {
 
     setTimeout(() => setShowPopup(false), 5000);
   }, [playerData?.lastEventDescription]);
-
   // NEW: Coat offer modal trigger (unchanged)
   useEffect(() => {
     if (playerData?.coatOfferPending) {
