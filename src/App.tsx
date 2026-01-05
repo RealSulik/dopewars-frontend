@@ -110,10 +110,6 @@ export default function App() {
     const ev = event.toLowerCase();
     let img = "";
 
-    // NEW: Coat upgrade offer — highest priority
-    if (ev.includes("coat") || ev.includes("trenchcoat") || ev.includes("upgrade offer")) {
-      img = "/events/coat.png";
-    }
     // Success escape
     else if (ev.includes("got away safely") || ev.includes("ran away from officer hardass")) {
       img = "/events/escape.png";
@@ -1004,13 +1000,25 @@ export default function App() {
         </div>
       )}
 
-      {/* COAT OFFER MODAL */}
+                  {/* COAT OFFER MODAL — with coat image inside */}
       {showCoatOfferModal && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4 border-2 border-purple-500">
-            <h2 className="text-3xl font-bold mb-4 neon-flicker text-purple-400">
+            <h2 className="text-3xl font-bold mb-4 neon-flicker text-purple-400 text-center">
               🧥 COAT UPGRADE OFFER!
             </h2>
+
+            {/* Coat image inside modal */}
+            <div className="mb-6 flex justify-center">
+              <div className="w-64 h-64 rounded-lg overflow-hidden border-4 border-purple-500/60 neon-glow-lg shadow-2xl">
+                <img 
+                  src="/events/coat.png" 
+                  alt="Bigger Trenchcoat" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+
             <p className="text-lg mb-4 text-center">
               Someone offers to sell you a bigger trenchcoat!
             </p>
@@ -1019,21 +1027,21 @@ export default function App() {
                 Cost: $5,000
               </p>
               <p className="text-sm opacity-80">
-                +50 capacity (currently: {capacity})
+                +50 capacity (currently: {capacity} → {capacity + 50})
               </p>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={handleAcceptCoatOffer}
                 disabled={loading || cash < 5000}
-                className="flex-1 px-4 py-3 rounded neon-button cyber-sweep bg-green-700 text-lg font-bold disabled:opacity-50"
+                className="flex-1 px-4 py-3 rounded-lg neon-button cyber-sweep bg-green-700 text-lg font-bold disabled:opacity-50"
               >
                 ✅ Accept ($5k)
               </button>
               <button
                 onClick={handleDeclineCoatOffer}
                 disabled={loading}
-                className="flex-1 px-4 py-3 rounded neon-button cyber-sweep bg-red-700 text-lg font-bold"
+                className="flex-1 px-4 py-3 rounded-lg neon-button cyber-sweep bg-red-700 text-lg font-bold"
               >
                 ❌ Decline
               </button>
@@ -1044,7 +1052,6 @@ export default function App() {
           </div>
         </div>
       )}
-
       {/* DAY 30 SETTLEMENT MODAL */}
       {showDay30Modal && (
         <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-50">
