@@ -3,12 +3,12 @@
   "name": "DopeWars on Base",
   "subtitle": "Hustle, trade & survive",
   "description": "A turn-based onchain strategy game with daily ICE rewards.",
-  "iconUrl": "https://dopewars-demo.vercel.app/ICE.png",
-  "splashImageUrl": "https://dopewars-demo.vercel.app/DopeWars-on-Base-spl.png",
+  "iconUrl": "https://www.dopewarsonbase.xyz/ICE.png",
+  "splashImageUrl": "https://www.dopewarsonbase.xyz/DopeWars-on-Base-spl.png",
   "splashBackgroundColor": "#050014",
-  "homeUrl": "https://dopewars-demo.vercel.app/",
+  "homeUrl": "https://www.dopewarsonbase.xyz/",
   "screenshotUrls": [
-    "https://dopewars-demo.vercel.app/home.png"
+    "https://www.dopewarsonbase.xyz/home.png"
   ],
   "primaryCategory": "game",
   "tags": ["game", "onchain", "base", "strategy"],
