@@ -96,65 +96,69 @@ export default function App() {
   // quantity state
   const [quantities, setQuantities] = useState<number[]>(() => [1, 1, 1, 1]);
 
-  // Event popup logic — FIXED cop escape image
-useEffect(() => {
-  const event = playerData?.lastEventDescription;
-  if (!event) return;
+    // Event popup logic — FIXED cop escape + ADDED coat offer image
+  useEffect(() => {
+    const event = playerData?.lastEventDescription;
+    if (!event) return;
 
-  const seenKey = "lastEventSeen";
-  const lastSeen = localStorage.getItem(seenKey);
+    const seenKey = "lastEventSeen";
+    const lastSeen = localStorage.getItem(seenKey);
 
-  if (lastSeen === event) return;
-  localStorage.setItem(seenKey, event);
+    if (lastSeen === event) return;
+    localStorage.setItem(seenKey, event);
 
-  const ev = event.toLowerCase();
-  let img = "";
+    const ev = event.toLowerCase();
+    let img = "";
 
-  // NEW: Success escape — higher priority
-  if (ev.includes("got away safely") || ev.includes("ran away from officer hardass")) {
-    img = "/events/escape.png";
-  }
-  // Mugged/robbed
-  else if (ev.includes("mugged") || ev.includes("robbed")) {
-    img = "/events/mugged.png";
-  }
-  // Police bust / fight loss
-  else if (ev.includes("police") || ev.includes("busted") || ev.includes("officer hardass")) {
-    img = "/events/police.png";
-  }
-  // Stash found
-  else if (ev.includes("stash") || ev.includes("found")) {
-    img = "/events/stash.png";
-  }
-  // ICE reward
-  else if (ev.includes("ice")) {
-    img = "/events/ice.png";
-  }
+    // NEW: Coat upgrade offer — highest priority
+    if (ev.includes("coat") || ev.includes("trenchcoat") || ev.includes("upgrade offer")) {
+      img = "/events/coat.png";
+    }
+    // Success escape
+    else if (ev.includes("got away safely") || ev.includes("ran away from officer hardass")) {
+      img = "/events/escape.png";
+    }
+    // Mugged/robbed
+    else if (ev.includes("mugged") || ev.includes("robbed")) {
+      img = "/events/mugged.png";
+    }
+    // Police bust / fight loss
+    else if (ev.includes("police") || ev.includes("busted") || ev.includes("officer hardass")) {
+      img = "/events/police.png";
+    }
+    // Stash found
+    else if (ev.includes("stash") || ev.includes("found")) {
+      img = "/events/stash.png";
+    }
+    // ICE reward
+    else if (ev.includes("ice")) {
+      img = "/events/ice.png";
+    }
 
-  if (!img) return;
+    if (!img) return;
 
-  setPopupImage(img);
-  setPopupText(event);
-  setShowPopup(true);
+    setPopupImage(img);
+    setPopupText(event);
+    setShowPopup(true);
 
-  setTimeout(() => setShowPopup(false), 5000);
-}, [playerData?.lastEventDescription]);
+    setTimeout(() => setShowPopup(false), 5000);
+  }, [playerData?.lastEventDescription]);
 
-  // NEW: Coat offer modal trigger
+  // NEW: Coat offer modal trigger (unchanged)
   useEffect(() => {
     if (playerData?.coatOfferPending) {
       setShowCoatOfferModal(true);
     }
   }, [playerData?.coatOfferPending]);
 
-  // NEW: Cop encounter modal trigger
+  // NEW: Cop encounter modal trigger (unchanged)
   useEffect(() => {
     if (playerData?.copEncounterPending) {
       setShowCopModal(true);
     }
   }, [playerData?.copEncounterPending]);
 
-  // NEW: Day 30 settlement trigger
+  // NEW: Day 30 settlement trigger (unchanged)
   useEffect(() => {
     if (playerData?.daysPlayed >= 30 && sessionActive) {
       setShowDay30Modal(true);
