@@ -222,7 +222,7 @@ export function useGame() {
     }
   }, [wallet, sessionActive, refreshGameState]);
 
-  // Settle game — no alert, instead return data via callback
+  // Settle game – no alert, instead return data via callback
   const settleGame = useCallback(async (onSettlementComplete?: (data: any) => void) => {
     if (!wallet || !provider || !sessionActive) {
       showError("Session not active", "settlement");
@@ -287,12 +287,13 @@ export function useGame() {
       
       console.log("✅ Settlement confirmed on-chain:", receipt.hash);
 
+      // ✅ CHANGED: Send gameRunId (database ID) instead of runId (blockchain hash)
       try {
         await fetch(`${API_BASE}/game/settle`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            runId: settlementData.runId,
+            gameRunId: settlementData.gameRunId,  // ✅ CHANGED: Use database ID
             txHash: receipt.hash,
             playerAddress: wallet,
           }),
