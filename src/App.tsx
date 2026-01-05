@@ -688,7 +688,7 @@ export default function App() {
             disabled={loading || (holding > 0 ? maxSell === 0 : maxBuy === 0)}
             className={`px-4 py-1 text-xs rounded border font-bold text-white disabled:opacity-50 transition-all ${
               holding > 0
-                ? "bg-red-700/80 hover:bg-red-600 border-red-400"
+? "bg-orange-700/80 hover:bg-orange-600 border-orange-400"
                 : "bg-purple-700/80 hover:bg-purple-600 border-purple-400"
             }`}
             title={holding > 0 ? "Sell everything you're holding" : "Max you can afford (cash + space)"}
@@ -1165,14 +1165,14 @@ export default function App() {
                 <p className="text-sm opacity-80">Final Stats:</p>
               </div>
               <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>Cash:</div><div className="text-right text-green-400">${formatMoney(cash)}</div>
-                <div>Bank:</div><div className="text-right text-blue-400">${formatMoney(bankBalance)}</div>
-                <div>Debt:</div><div className="text-right text-red-400">${formatMoney(debt)}</div>
-                <div className="font-bold">Net Worth:</div>
-                <div className="text-right font-bold text-yellow-400">
-                  ${formatMoney(earlySettlementData.finalNetWorth)}
-                </div>
-              </div>
+  <div>Cash:</div><div className="text-right text-green-400">${formatMoney(cash || 0)}</div>
+  <div>Bank:</div><div className="text-right text-blue-400">${formatMoney(bankBalance || 0)}</div>
+  <div>Debt:</div><div className="text-right text-red-400">${formatMoney(debt || 0)}</div>
+  <div className="font-bold">Net Worth:</div>
+  <div className="text-right font-bold text-yellow-400">
+    ${formatMoney(earlySettlementData.finalNetWorth || currentNetWorth)}
+  </div>
+</div>
               
               {earlySettlementData.didWin && (
                 <div className="mt-4 p-2 bg-green-900/30 rounded text-center">
