@@ -651,23 +651,27 @@ export default function App() {
           <span className="opacity-90 text-right">${formatMoney(price * qty)}</span>
         </div>
 
-        <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-3">
           <input
             type="number"
             min={1}
             value={qty}
             onChange={(e) => updateQtyRaw(e.target.value)}
             onBlur={normalizeQty}
-className="trade-qty flex-1 bg-blue-900/40 !important text-white font-medium border border-cyan-500/30"
+            className="trade-qty flex-1"
             placeholder="Qty"
           />
           <button
-            onClick={setMaxBuy}
-            disabled={loading || maxBuy === 0}
-            className="px-3 py-1 text-xs rounded bg-purple-700/80 hover:bg-purple-600 border border-purple-400 font-bold text-white disabled:opacity-50"
-            title="Max you can afford with cash + space"
+            onClick={holding > 0 ? setMaxSell : setMaxBuy}
+            disabled={loading || (holding > 0 ? maxSell === 0 : maxBuy === 0)}
+            className={`px-4 py-1 text-xs rounded border font-bold text-white disabled:opacity-50 transition-all ${
+              holding > 0
+                ? "bg-red-700/80 hover:bg-red-600 border-red-400"
+                : "bg-purple-700/80 hover:bg-purple-600 border-purple-400"
+            }`}
+            title={holding > 0 ? "Sell everything you're holding" : "Max you can afford (cash + space)"}
           >
-            MAX
+            {holding > 0 ? "ALL" : "MAX"}
           </button>
         </div>
 
