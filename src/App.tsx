@@ -1,3 +1,4 @@
+
 // src/App.tsx
 // Forced update for UTF-8 encoding
 import "./App.css";
@@ -584,99 +585,117 @@ export default function App() {
                       }`}
                     >
                       {safeInventory.map((d, i) => {
-                        const qty: number = Number(quantities[i] ?? 1);
-                        const canSell = d.amount > 0;
+  const qty: number = Number(quantities[i] ?? 1);
+  const canSell = (d.amount || 0) > 0;
+  const price = Number(d.price ?? 0);
+  const holding = d.amount || 0;
 
-                        function updateQtyRaw(v: string) {
-                          const num = Number(v);
-                          const next: number[] = [...quantities];
-                          next[i] = num > 0 ? num : 1;
-                          setQuantities(next);
-                        }
+  // Calculate MAX for Buy: limited by cash and remaining space
+  const spaceLeft = capacity - totalDrugs;
+  const maxByCash = price > 0 ? Math.floor(cash / price) : 0;
+  const maxBySpace = spaceLeft;
+  const maxBuy = Math.max(0, Math.min(maxByCash, maxBySpace));
 
-                        function normalizeQty() {
-                          const current = Number(quantities[i]);
-                          const safe = current > 0 ? current : 1;
-                          const next: number[] = [...quantities];
-                          next[i] = safe;
-                          setQuantities(next);
-                        }
+  // MAX for Sell: everything held
+  const maxSell = holding;
 
-                        return (
-                          <div
-                            key={i}
-                            className={`p-1 ${
-                              isMobile
-                                ? "snap-center shrink-0 w-[65vw]"
-                                : "w-full"
-                            }`}
-                          >
-                            <div
-                              className={`backpanel cyber-card cyber-scanlines cyber-trace inventory-card flex flex-col w-full ${
-                                isMobile ? "h-auto" : "h-[198px]"
-                              }`}
-                            >
-                              <div className="font-semibold text-lg mb-1">
-                                {d.name}
-                              </div>
+  function updateQtyRaw(v: string) {
+    const num = Number(v);
+    const next: number[] = [...quantities];
+    next[i] = num > 0 ? num : 1;
+    setQuantities(next);
+  }
 
-                              {(() => {
-                                const price = Number(d.price ?? 0);
-                                const rawQty = quantities[i];
-                                const qtySafe =
-                                  Number.isFinite(Number(rawQty)) &&
-                                  Number(rawQty) > 0
-                                    ? Number(rawQty)
-                                    : 1;
+  function normalizeQty() {
+    const current = Number(quantities[i]);
+    const safe = current > 0 ? current : 1;
+    const next: number[] = [...quantities];
+    next[i] = safe;
+    setQuantities(next);
+  }
 
-                                const totalCost = price * qtySafe;
+  const setMaxBuy = () => {
+    const next: number[] = [...quantities];
+    next[i] = maxBuy > 0 ? maxBuy : 1;
+    setQuantities(next);
+  };
 
-                                return (
-                                  <>
-                                    <div className="grid grid-cols-2 text-sm gap-y-1 mb-2">
-                                      <span className="opacity-80">Amount: {d.amount} units</span>
-                                      <span className="opacity-80 text-right">Total</span>
-                                      <span className="opacity-90">Price: ${formatMoney(price)}</span>
-                                      <span className="opacity-90 text-right">${formatMoney(totalCost)}</span>
-                                    </div>
-                                  </>
-                                );
-                              })()}
+  const setMaxSell = () => {
+    const next: number[] = [...quantities];
+    next[i] = maxSell > 0 ? maxSell : 1;
+    setQuantities(next);
+  };
 
-                              <input
-                                type="number"
-                                min={1}
-                                value={qty}
-                                onChange={(e) => updateQtyRaw(e.target.value)}
-                                onBlur={normalizeQty}
-                                className="trade-qty"
-                                placeholder="Qty"
-                              />
+  return (
+    <div
+      key={i}
+      className={`p-1 ${
+        isMobile
+          ? "snap-center shrink-0 w-[65vw]"
+          : "w-full"
+      }`}
+    >
+      <div
+        className={`backpanel cyber-card cyber-scanlines cyber-trace inventory-card flex flex-col w-full ${
+          isMobile ? "h-auto" : "h-[198px]"
+        }`}
+      >
+        <div className="font-semibold text-lg mb-1">
+          {d.name}
+        </div>
 
-                              <div className="mt-auto flex gap-2">
-                                <button
-                                  onClick={() => buy(i, qty)}
-                                  disabled={loading}
-                                  className="flex-1 px-3 py-1 rounded-full text-sm font-semibold neon-button cyber-sweep neon-button--buy"
-                                >
-                                  Buy
-                                </button>
-                                <button
-                                  onClick={() => sell(i, qty)}
-                                  disabled={!canSell || loading}
-                                  className={`flex-1 px-3 py-1 rounded-full text-sm font-semibold neon-button cyber-sweep ${
-                                    canSell
-                                      ? "neon-button--sell"
-                                      : "neon-button--disabled cursor-not-allowed"
-                                  }`}
-                                >
-                                  Sell
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
+        <div className="grid grid-cols-2 text-sm gap-y-1 mb-2">
+          <span className="opacity-80">Holding: {holding} units</span>
+          <span className="opacity-80 text-right">Price: ${formatMoney(price)}</span>
+          <span className="opacity-90">Qty:</span>
+          <span className="opacity-90 text-right">${formatMoney(price * qty)}</span>
+        </div>
+
+        <div className="flex items-center gap-2 mb-3">
+          <input
+            type="number"
+            min={1}
+            value={qty}
+            onChange={(e) => updateQtyRaw(e.target.value)}
+            onBlur={normalizeQty}
+className="trade-qty flex-1 bg-blue-900/40 !important text-white font-medium border border-cyan-500/30"
+            placeholder="Qty"
+          />
+          <button
+            onClick={setMaxBuy}
+            disabled={loading || maxBuy === 0}
+            className="px-3 py-1 text-xs rounded bg-purple-700/80 hover:bg-purple-600 border border-purple-400 font-bold text-white disabled:opacity-50"
+            title="Max you can afford with cash + space"
+          >
+            MAX
+          </button>
+        </div>
+
+        <div className="mt-auto flex gap-2">
+          <button
+            onClick={() => buy(i, qty)}
+            disabled={loading || price === 0}
+            className="flex-1 px-3 py-1 rounded-full text-sm font-semibold neon-button cyber-sweep neon-button--buy disabled:opacity-50"
+          >
+            Buy
+          </button>
+          <button
+            onClick={() => sell(i, qty)}
+            disabled={!canSell || loading}
+            className={`flex-1 px-3 py-1 rounded-full text-sm font-semibold neon-button cyber-sweep ${
+              canSell
+                ? "neon-button--sell"
+                : "neon-button--disabled cursor-not-allowed opacity-50"
+            }`}
+          >
+            Sell
+          </button>
+        </div>
+
+             </div>
+    </div>
+  );
+})}
                     </div>
                   ) : (
                     <p className="text-center opacity-60 text-sm">
