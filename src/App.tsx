@@ -1,4 +1,3 @@
-
 // src/App.tsx
 // Forced update for UTF-8 encoding
 import "./App.css";
@@ -115,17 +114,29 @@ export default function App() {
     const ev = event.toLowerCase();
     let img = "";
 
+    // Death check first
+    if (ev.includes("died")) {
+      img = "/events/dead.png";
+    }
+    // Fight win
+    else if (ev.includes("won") && ev.includes("fought officer hardass")) {
+      img = "/events/copshot.png";
+    }
+    // Fight lose
+    else if (ev.includes("hurt") && ev.includes("fought officer hardass")) {
+      img = "/events/shot.png";
+    }
+    // Run fail
+    else if (ev.includes("got shot")) {
+      img = "/events/shot.png";
+    }
     // Success escape
-    if (ev.includes("got away safely") || ev.includes("ran away from officer hardass")) {
+    else if (ev.includes("got away safely") || ev.includes("ran away from officer hardass")) {
       img = "/events/escape.png";
     }
     // Mugged/robbed
     else if (ev.includes("mugged") || ev.includes("robbed")) {
       img = "/events/mugged.png";
-    }
-    // Police bust / fight loss
-    else if (ev.includes("police") || ev.includes("busted") || ev.includes("officer hardass")) {
-      img = "/events/police.png";
     }
     // Stash found
     else if (ev.includes("stash") || ev.includes("found")) {
@@ -212,21 +223,38 @@ export default function App() {
 
   const lastEvent = playerData?.lastEventDescription;
 
-  let eventColor = "text-gray-100";
-  let eventPanelClass = "";
-  if (lastEvent) {
-    const ev = lastEvent.toLowerCase();
-    if (ev.includes("mugged") || ev.includes("robbed")) {
-      eventColor = "text-red-400";
-      eventPanelClass = "event-bad";
-    } else if (ev.includes("ice") || ev.includes("stash") || ev.includes("found")) {
-      eventColor = "text-green-400";
-      eventPanelClass = "event-good";
-    } else if (ev.includes("police") || ev.includes("busted")) {
-      eventColor = "text-yellow-400";
-      eventPanelClass = "event-warning";
-    }
+ let eventColor = "text-gray-100";
+let eventPanelClass = "";
+if (lastEvent) {
+  const ev = lastEvent.toLowerCase();
+  
+  // BAD events - red
+  if (
+    ev.includes("mugged") || 
+    ev.includes("robbed") || 
+    ev.includes("hurt") ||          // ← covers fight lose
+    ev.includes("got shot") ||      // ← covers run fail
+    ev.includes("died")             // ← death
+  ) {
+    eventColor = "text-red-400";
+    eventPanelClass = "event-bad";
   }
+  // GOOD events - green
+  else if (
+    ev.includes("ice") || 
+    ev.includes("stash") || 
+    ev.includes("found") || 
+    ev.includes("won") && ev.includes("fought")  // ← fight win
+  ) {
+    eventColor = "text-green-400";
+    eventPanelClass = "event-good";
+  }
+  // WARNING / NEUTRAL cop-related - yellow
+  else if (ev.includes("police") || ev.includes("busted") || ev.includes("officer hardass")) {
+    eventColor = "text-yellow-400";
+    eventPanelClass = "event-warning";
+  }
+}
   
   // Bank modal handlers
   const handleBankSubmit = () => {
@@ -590,7 +618,7 @@ export default function App() {
 
               <div className="flex flex-col md:flex-row gap-4 items-start">
                 {/* LEFT column */}
-                <div className="flex flex-col w-full md:flex-1 backpanel cyber-card cyber-scanlines cyber-trace pt-3 pb-3">
+                <div className="flex flex-col w-full md:flex-1 backpanel cyber-card cyber-scanlines cyber-trace pt-3 pb-3 pr-3 pl-3">
                   {/* MOBILE prices carousel */}
                   {isMobile && prices.length > 0 && (
                     <div className="px-2 mb-3">
@@ -1032,16 +1060,29 @@ export default function App() {
         </div>
       )}
 
-      {/* COP ENCOUNTER MODAL */}
+      {/* COP ENCOUNTER MODAL — now with image inside */}
       {showCopModal && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
           <div className="backpanel cyber-card p-6 max-w-md w-full mx-4 border-2 border-red-500">
-            <h2 className="text-3xl font-bold mb-4 neon-flicker text-red-400">
+            <h2 className="text-3xl font-bold mb-4 neon-flicker text-red-400 text-center">
               🚨 OFFICER HARDASS! 🚨
             </h2>
+
+            {/* Cop image inside modal */}
+            <div className="mb-6 flex justify-center">
+              <div className="w-64 h-64 rounded-lg overflow-hidden border-4 border-red-500/60 neon-glow-lg shadow-2xl">
+                <img 
+                  src="/events/cop_approach.png" 
+                  alt="Officer Hardass approaching" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+
             <p className="text-lg mb-6 text-center">
-              You've been spotted! What do you do?
+              He's coming for you! What do you do?
             </p>
+
             <div className="flex gap-3">
               <button
                 onClick={() => {
@@ -1062,6 +1103,7 @@ export default function App() {
                 🏃 Run!
               </button>
             </div>
+
             <p className="text-xs mt-4 text-center opacity-60">
               {hasGun ? "🔫 You have a gun - better odds!" : "⚠️ No gun - risky!"}
             </p>
