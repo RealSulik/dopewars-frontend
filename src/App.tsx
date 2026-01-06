@@ -332,6 +332,31 @@ export default function App() {
 
               {/* Content overlay */}
               <div className="min-h-screen flex flex-col items-center justify-center pt-1 pb-4 animate-fadeIn px-4">
+              {/* Social Links - Top Left */}
+              <div className="absolute top-4 left-4 flex gap-4 z-20">
+                <a
+                  href="https://x.com/dopewars_xyz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-purple-400 hover:text-purple-300 transition-all hover:scale-110"
+                  title="Follow on X"
+                >
+                  <svg className="w-8 h-8" viewBox="0 0 300 300.251" fill="currentColor">
+                    <path d="M178.57 127.15 290.27 0h-26.46l-97.03 110.38L89.34 0H0l117.13 166.93L0 300.25h26.46l102.4-110.41 81.8 110.41h89.34M36.01 19.54H76.66l187.13 262.13h-40.66"/>
+                  </svg>
+                </a>
+                <a
+                  href="https://discord.gg/J5cZfjYC"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cyan-400 hover:text-cyan-300 transition-all hover:scale-110"
+                  title="Join Discord"
+                >
+                  <svg className="w-8 h-8" viewBox="0 0 127.14 96.36" fill="currentColor">
+                    <path d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29.11 0 72.37 72.37 0 0 0-3.36-6.83 105.15 105.15 0 0 0-26.23 8.07C5.56 44.29 0 72.27 0 96.36a103.9 103.9 0 0 0 31.39 23.88 79.25 79.25 0 0 0 6.81-4.37 63.16 63.16 0 0 1-10.13-5.83 64.06 64.06 0 0 0 5.5-2.9 102.66 102.66 0 0 0 86.66 0 64.06 64.06 0 0 0 5.5 2.9 63.16 63.16 0 0 1-10.13 5.83 79.25 79.25 0 0 0 6.81 4.37 103.9 103.9 0 0 0 31.39-23.88c0-24.09-5.56-52.07-25.93-88.29zm-65.79 79.87c-5.52 0-10-4.76-10-10.62s4.48-10.62 10-10.62 10 4.76 10 10.62-4.48 10.62-10 10.62zm34.54 0c-5.52 0-10-4.76-10-10.62s4.48-10.62 10-10.62 10 4.76 10 10.62-4.48 10.62-10 10.62z"/>
+                  </svg>
+                </a>
+              </div>
                 <h2 className="text-3xl md:text-4xl font-bold mb-2 neon-flicker text-center">
                   DopeWars on Base
                 </h2>
