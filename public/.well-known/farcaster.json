@@ -24,6 +24,7 @@
     "iconUrl": "https://www.dopewarsonbase.xyz/icon.png",
     "homeUrl": "https://www.dopewarsonbase.xyz/",
 "primaryCategory": "games",
+"tags": ["game", "onchain", "base", "strategy"],
     "imageUrl": "https://www.dopewarsonbase.xyz/image.png",
     "buttonTitle": "Play DopeWars",
     "splashImageUrl": "https://www.dopewarsonbase.xyz/splash.png",
