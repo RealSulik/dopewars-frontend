@@ -543,7 +543,7 @@ export default function App() {
 
               {/* DAY & LOCATION */}
               {isMobile ? (
-                <div className="px-2 mb-3">
+                <div className="px-0.05 mb-3">
                   <div className="backpanel cyber-card cyber-scanlines cyber-trace px-3 py-3 flex flex-col items-center gap-2 text-center">
                     <p className="text-sm font-semibold opacity-90">
                       {locationName} · Day {days} {hasGun && '🔫'}
@@ -555,7 +555,7 @@ export default function App() {
                         disabled={loading}
                         className="px-3 py-1 rounded-full text-xs font-semibold neon-button cyber-sweep"
                       >
-                        Claim
+                        Claim Daily ICE
                       </button>
                     </div>
                   </div>
