@@ -3,10 +3,11 @@
   "name": "DopeWars on Base",
   "subtitle": "Hustle, trade & survive",
   "description": "A turn-based onchain strategy game with daily ICE rewards.",
-  "iconUrl": "https://www.dopewarsonbase.xyz/ICE.png",
-  "splashImageUrl": "https://www.dopewarsonbase.xyz/DopeWars_onbase.png",
+  "iconUrl": "https://www.dopewarsonbase.xyz/icon.png",
+  "splashImageUrl": "https://www.dopewarsonbase.xyz/splash.png",
   "splashBackgroundColor": "#050014",
   "homeUrl": "https://www.dopewarsonbase.xyz/",
+"imageUrl": "https://dopewarsonbase.xyz/image.png",
   "screenshotUrls": [
     "https://www.dopewarsonbase.xyz/home.png"
   ],
@@ -20,11 +21,11 @@
   "frame": {
     "version": "1",
     "name": "DopeWars on Base",
-    "iconUrl": "https://www.dopewarsonbase.xyz/ICE.png",
+    "iconUrl": "https://www.dopewarsonbase.xyz/icon.png",
     "homeUrl": "https://www.dopewarsonbase.xyz/",
-    "imageUrl": "https://www.dopewarsonbase.xyz/home.png",
+    "imageUrl": "https://www.dopewarsonbase.xyz/image.png",
     "buttonTitle": "Play DopeWars",
-    "splashImageUrl": "DopeWars_onbase.png",
+    "splashImageUrl": "https://www.dopewarsonbase.xyz/splash.png",
     "splashBackgroundColor": "#050014"
   }
 }
