@@ -2586,119 +2586,84 @@ Your score has been recorded on the blockchain
 {/* $1M EARLY WIN MODAL - GOLD THEME */}
 
 {showMillionModal && (
+  <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-50 px-4">
+    <div className="backpanel cyber-card p-6 max-w-sm w-full mx-4 border-4 border-yellow-500 neon-glow-lg shadow-2xl">
+      {/* Title - smaller */}
+      <h2 className="text-xl font-bold mb-0.1 neon-flicker text-yellow-300 text-center">
+        🎉 $1 MILLION ACHIEVED!
+      </h2>
 
-<div className="fixed inset-0 bg-black/95 flex items-center justify-center z-50">
+      {/* Legend text - smaller */}
+      <p className="text-xl mb-0.1 text-center text-yellow-200">
+        You're a cyberpunk legend!
+      </p>
 
-<div className="backpanel cyber-card p-8 max-w-lg w-full mx-4 border-4 border-yellow-500 neon-glow-lg shadow-2xl">
+      {/* Stats box with image inside */}
+      <div className="p-5 bg-black/50 rounded-lg border-2 border-yellow-600">
+        {/* Win image inside stats box */}
+        <div className="mb-6 flex justify-center">
+          <div className="w-56 h-56 rounded-lg overflow-hidden border-4 border-yellow-500/60 neon-glow-lg shadow-xl">
+            <img 
+              src="/events/mil.png" 
+              alt="Victory" 
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
 
-<h2 className="text-5xl font-bold mb-6 neon-flicker text-yellow-300 text-center animate-pulse-slow">
+        {/* Stats header - smaller */}
+        <div className="text-center mb-1">
+          <p className="text-base opacity-80 text-yellow-100">Current Stats:</p>
+        </div>
 
-🎉 $1 MILLION ACHIEVED! 🎉
+        {/* Stats grid - smaller text */}
+        <div className="grid grid-cols-2 gap-2 text-base">
+          <div>Cash:</div><div className="text-right text-green-400">${formatMoney(cash)}</div>
+          <div>Bank:</div><div className="text-right text-blue-400">${formatMoney(bankBalance)}</div>
+          <div>Debt:</div><div className="text-right text-red-400">${formatMoney(debt)}</div>
+          <div className="font-bold text-yellow-300">Net Worth:</div>
+          <div className="text-right font-bold text-yellow-300">
+            ${formatMoney(currentNetWorth)}
+          </div>
+        </div>
 
-</h2>
+        {/* ICE reward - smaller */}
+        <div className="mt-5 p-3 bg-yellow-900/30 rounded text-center">
+          <p className="text-xl font-bold text-yellow-200">
+            🎖️ 10 ICE Reward!
+          </p>
+        </div>
+      </div>
 
-<p className="text-2xl mb-8 text-center text-yellow-200">
+      {/* Buttons - slightly smaller */}
+      <div className="flex flex-col gap-1.5 mt-3">
+        <button
+          onClick={() => {
+            setShowMillionModal(false);
+            settleGame((data) => {
+              setEarlySettlementData(data);
+              setShowEarlySettlementModal(true);
+            });
+          }}
+          disabled={loading}
+          className="w-full px-6 py-4 rounded-lg neon-button cyber-sweep bg-gradient-to-r from-yellow-600 to-amber-600 text-lg font-bold shadow-xl"
+        >
+          🏆 End Game
+        </button>
+        <button
+          onClick={() => setShowMillionModal(false)}
+          className="w-full px-6 py-3 rounded-lg neon-button cyber-sweep bg-gradient-to-r from-purple-700 to-pink-700 text-lg font-bold"
+        >
+          💰 Continue Playing
+        </button>
+      </div>
 
-You're a cyberpunk legend!
-
-</p>
-
-
-<div className="mb-8 p-6 bg-black/50 rounded-lg border-2 border-yellow-600">
-
-<div className="text-center mb-4">
-
-<p className="text-lg opacity-80 text-yellow-100">Current Stats:</p>
-
-</div>
-
-<div className="grid grid-cols-2 gap-4 text-lg">
-
-<div>Cash:</div><div className="text-right text-green-400">${formatMoney(cash)}</div>
-
-<div>Bank:</div><div className="text-right text-blue-400">${formatMoney(bankBalance)}</div>
-
-<div>Debt:</div><div className="text-right text-red-400">${formatMoney(debt)}</div>
-
-<div className="font-bold text-yellow-300">Net Worth:</div>
-
-<div className="text-right font-bold text-yellow-300">
-
-${formatMoney(currentNetWorth)}
-
-</div>
-
-</div>
-
-<div className="mt-6 p-4 bg-yellow-900/30 rounded text-center">
-
-<p className="text-2xl font-bold text-yellow-200">
-
-🎖️ Eligible for 10 ICE Reward!
-
-</p>
-
-</div>
-
-</div>
-
-
-<div className="flex flex-col gap-4">
-
-<button
-
-onClick={() => {
-
-const savedStats = { cash, bankBalance, debt, currentNetWorth };
-setShowMillionModal(false);
-
-settleGame((data) => {
-
-setEarlySettlementData({ ...data, ...savedStats });
-
-setShowEarlySettlementModal(true);
-
-});
-
-}}
-
-disabled={loading}
-
-className="w-full px-8 py-5 rounded-lg neon-button cyber-sweep bg-gradient-to-r from-yellow-600 to-amber-600 text-2xl font-bold shadow-2xl hover:shadow-yellow-500/50"
-
->
-
-🏆 Claim 10 ICE & End Game
-
-</button>
-
-<button
-
-onClick={() => setShowMillionModal(false)}
-
-className="w-full px-8 py-4 rounded-lg neon-button cyber-sweep bg-gradient-to-r from-purple-700 to-pink-700 text-xl font-bold"
-
->
-
-💰 Continue Playing
-
-</button>
-
-</div>
-
-
-<p className="text-sm mt-6 text-center opacity-70 text-yellow-100">
-
-Keep pushing for an even higher leaderboard score!
-
-</p>
-
-</div>
-
-</div>
-
+      <p className="text-xs mt-4 text-center opacity-70 text-yellow-100">
+        Keep pushing for an even higher leaderboard score!
+      </p>
+    </div>
+  </div>
 )}
-
 {/* POPUP EVENT */}
 
 <EventPopup
