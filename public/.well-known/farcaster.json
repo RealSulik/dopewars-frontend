@@ -27,7 +27,7 @@
     "homeUrl": "https://www.dopewarsonbase.xyz/",
     "splashImageUrl": "https://www.dopewarsonbase.xyz/splash.png",
     "splashBackgroundColor": "#050014",
-    "subtitle": "Hustle, trade & survive",
+    "subtitle": "Hustle, trade , win ICE",
     "description": "A turn-based onchain strategy game with daily ICE rewards.",
     "primaryCategory": "games",
     "tags": [
@@ -38,7 +38,7 @@
       "ice"
     ],
     "heroImageUrl": "https://www.dopewarsonbase.xyz/hero.png",
-    "tagline": "Hustle, trade & survive",
+    "tagline": "Hustle, trade , win ICE",
     "ogTitle": "DopeWars on Base",
     "ogDescription": "A turn-based onchain strategy game with daily ICE rewards.",
     "ogImageUrl": "https://www.dopewarsonbase.xyz/og.png",
@@ -67,7 +67,6 @@
     "primaryCategory": "games",
     "tags": [
       "game",
-      "onchain",
       "base",
       "strategy",
       "dopewars",
