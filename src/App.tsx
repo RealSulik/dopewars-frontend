@@ -276,7 +276,7 @@ img = "/events/stash.png";
 
 // ICE reward
 
-else if (ev.includes("ice")) {
+else if (ev.includes("claimed") || ev.toUpperCase().includes("ICE!")) {
 
 img = "/events/Ice.png";
 
