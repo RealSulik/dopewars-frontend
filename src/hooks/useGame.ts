@@ -174,15 +174,15 @@ export function useGame() {
     }
   }, [wallet, refreshGameState]);
 
-  // Generic action handler
+  // Generic action handler - returns eventDescription for caller to check
   const sendAction = useCallback(async (
     label: string,
     action: string,
     params: any = {}
-  ) => {
+  ): Promise<string | null> => {
     if (!wallet || !sessionActive) {
       showError("Session not active", action);
-      return;
+      return null;
     }
 
     setCurrentAction(label);
@@ -205,19 +205,21 @@ export function useGame() {
         if (data.mustSettle) {
           showError("⚠️ Day 30 reached! You must settle your game now.", action);
           await refreshGameState();
-          return;
+          return null;
         }
         throw new Error(data.error || "Action failed");
       }
 
       await refreshGameState();
-      
+      return data.eventDescription || null;
+
     } catch (err: any) {
       showError(err.message || "Action failed", action);
+      return null;
     } finally {
       setLoading(false);
       setCurrentAction(null);
-      
+
       setTimeout(() => refreshGameState(), 2000);
     }
   }, [wallet, sessionActive, refreshGameState]);

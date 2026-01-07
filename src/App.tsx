@@ -170,6 +170,8 @@ const [showCopModal, setShowCopModal] = useState(false);
 
 const [showCoatOfferModal, setShowCoatOfferModal] = useState(false);
 
+// NEW: Death modal
+const [showDeathModal, setShowDeathModal] = useState(false);
 
 // NEW: Day 30 settlement prompt
 
@@ -221,19 +223,12 @@ const ev = event.toLowerCase();
 
 let img = "";
 
-
-
-// Death check first
-
-if (ev.includes("died")) {
-
-img = "/events/dead.png";
-
-}
+// Skip death events - handled by death modal now
+if (ev.includes("died")) return;
 
 // Fight win
 
-else if (ev.includes("won") && ev.includes("fought officer hardass")) {
+if (ev.includes("won") && ev.includes("fought officer hardass")) {
 
 img = "/events/copshot.png";
 
@@ -2154,11 +2149,13 @@ He's coming for you! What do you do?
 
 <button
 
-onClick={() => {
-
-fightCop();
+onClick={async () => {
 
 setShowCopModal(false);
+const event = await fightCop();
+if (event?.includes('died')) {
+  setShowDeathModal(true);
+}
 
 }}
 
@@ -2172,11 +2169,13 @@ className="flex-1 px-4 py-3 rounded neon-button cyber-sweep bg-red-700 text-lg f
 
 <button
 
-onClick={() => {
-
-runFromCop();
+onClick={async () => {
 
 setShowCopModal(false);
+const event = await runFromCop();
+if (event?.includes('died')) {
+  setShowDeathModal(true);
+}
 
 }}
 
@@ -2410,7 +2409,61 @@ Settlement will record your score on the blockchain
 
 )}
 
+{/* DEATH MODAL */}
+{showDeathModal && (
+<div className="fixed inset-0 bg-black/95 flex items-center justify-center z-50">
+<div className="backpanel cyber-card p-8 max-w-lg w-full mx-4 border-4 border-red-700">
 
+<h2 className="text-5xl font-bold mb-6 neon-flicker text-red-500 text-center">
+💀 YOU DIED
+</h2>
+
+<div className="mb-6">
+<img
+  src="/events/dead.png"
+  alt="Death"
+  className="w-full max-h-64 object-contain rounded-lg"
+/>
+</div>
+
+<p className="text-xl mb-6 text-center text-gray-300">
+Officer Hardass got you. Your run is over.
+</p>
+
+<div className="mb-6 p-4 bg-black/50 rounded-lg">
+<div className="grid grid-cols-2 gap-2 text-sm">
+<div>Days Survived:</div>
+<div className="text-right text-yellow-400">{playerData?.daysPlayed || 0}</div>
+<div>Cash:</div>
+<div className="text-right text-green-400">${formatMoney(cash)}</div>
+<div>Bank:</div>
+<div className="text-right text-blue-400">${formatMoney(bankBalance)}</div>
+<div>Debt:</div>
+<div className="text-right text-red-400">${formatMoney(debt)}</div>
+</div>
+</div>
+
+<button
+onClick={() => {
+  setShowDeathModal(false);
+  settleGame((data) => {
+    setEarlySettlementData(data);
+    setShowEarlySettlementModal(true);
+  });
+}}
+disabled={loading}
+className="w-full px-6 py-4 rounded-lg neon-button cyber-sweep bg-gradient-to-r from-red-800 to-red-600 text-2xl font-bold"
+>
+{loading ? "Settling..." : "☠️ Accept Fate"}
+</button>
+
+<p className="text-xs mt-4 text-center opacity-60">
+This will end your run and record your score
+</p>
+
+</div>
+</div>
+)}
 
 {/* EARLY SETTLEMENT MODAL */}
 
