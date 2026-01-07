@@ -8,11 +8,20 @@
   "splashBackgroundColor": "#050014",
   "homeUrl": "https://www.dopewarsonbase.xyz/",
   "primaryCategory": "games",
-  "tags": ["game", "onchain", "base", "strategy", "dopewars", "ice"],  "accountAssociation": {
+  "tags": [
+    "game",
+    "onchain",
+    "base",
+    "strategy",
+    "dopewars",
+    "ice"
+  ],
+  "accountAssociation": {
     "header": "eyJmaWQiOjU2OTE4MSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDA3RTU1Qzc0NzBkMDUwRjREY0NiNUU4MjU2YTQ0NjE4NGNkQWVFOTcifQ",
     "payload": "eyJkb21haW4iOiJkb3Bld2Fyc29uYmFzZS54eXoifQ",
     "signature": "IRvUhCSOR+AzbNSjgtdNeVr2davH+40Hwk1DGA+jDYZheJfucXMPu7dAC7kOCw4LeWKJk7FeLrZWp1yQkI0fexs="
-  },  "miniapp": {
+  },
+  "miniapp": {
     "version": "1",
     "name": "DopeWars on Base",
     "iconUrl": "https://www.dopewarsonbase.xyz/icon.png",
@@ -22,25 +31,35 @@
     "subtitle": "Hustle, trade & survive",
     "description": "A turn-based onchain strategy game with daily ICE rewards.",
     "primaryCategory": "games",
-    "tags": ["game", "onchain", "base", "strategy", "dopewars", "ice"],
-    "heroImageUrl": "https://www.dopewarsonbase.xyz/hero.png",        
+    "tags": [
+      "game",
+      "onchain",
+      "base",
+      "strategy",
+      "dopewars",
+      "ice"
+    ],
+    "heroImageUrl": "https://www.dopewarsonbase.xyz/hero.png",
     "tagline": "Hustle, trade & survive",
     "ogTitle": "DopeWars on Base",
     "ogDescription": "A turn-based onchain strategy game with daily ICE rewards.",
-    "ogImageUrl": "https://www.dopewarsonbase.xyz/og.png",            
+    "ogImageUrl": "https://www.dopewarsonbase.xyz/og.png",
     "screenshotUrls": [
-      "https://www.dopewarsonbase.xyz/screenshot1.png",              
+      "https://www.dopewarsonbase.xyz/screenshot1.png",
       "https://www.dopewarsonbase.xyz/screenshot2.png",
       "https://www.dopewarsonbase.xyz/screenshot3.png"
     ],
-    "requiredChains": ["eip155:8453"],
+    "requiredChains": [
+      "eip155:8453"
+    ],
     "requiredCapabilities": [
       "wallet.getEthereumProvider",
       "actions.ready",
       "actions.signIn",
       "actions.openUrl"
     ]
-  },  "frame": {
+  },
+  "frame": {
     "version": "1",
     "name": "DopeWars on Base",
     "iconUrl": "https://www.dopewarsonbase.xyz/icon.png",
@@ -48,7 +67,13 @@
     "splashImageUrl": "https://www.dopewarsonbase.xyz/splash.png",
     "splashBackgroundColor": "#050014",
     "primaryCategory": "games",
-"tags": ["game", "onchain", "base", "strategy", "dopewars", "ice"],
+    "tags": [
+      "game",
+      "onchain",
+      "base",
+      "strategy",
+      "dopewars",
+      "ice"
+    ]
   }
 }
-
