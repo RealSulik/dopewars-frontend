@@ -174,6 +174,41 @@ export function useGame() {
     }
   }, [wallet, refreshGameState]);
 
+  // Apply gameState from server response directly
+  const applyGameState = useCallback((state: any) => {
+    setPlayerData({
+      cash: state.cash,
+      location: state.location,
+      daysPlayed: state.daysPlayed,
+      lastEventDescription: state.lastEventDescription,
+      netWorthGoal: state.netWorthGoal,
+      currentNetWorth: state.currentNetWorth,
+      debt: state.debt,
+      bankBalance: state.bankBalance,
+      trenchcoatCapacity: state.trenchcoatCapacity,
+      health: state.health,
+      hasGun: state.hasGun,
+      coatUpgrades: state.coatUpgrades,
+      copEncounterPending: state.copEncounterPending,
+      coatOfferPending: state.coatOfferPending,
+      wonAtDay: state.wonAtDay,
+    });
+
+    const invArr: any[] = [];
+    for (let i = 0; i < 4; i++) {
+      invArr.push({
+        name: drugNames[i],
+        amount: state.inventory[i],
+        price: state.prices[i]
+      });
+    }
+
+    setInventory(invArr);
+    setPrices(state.prices);
+    setIce(state.totalIce);
+    setSessionActive(true);
+  }, [drugNames]);
+
   // Generic action handler - returns eventDescription for caller to check
   const sendAction = useCallback(async (
     label: string,
@@ -210,7 +245,14 @@ export function useGame() {
         throw new Error(data.error || "Action failed");
       }
 
-      await refreshGameState();
+      // Use returned gameState directly if available (faster!)
+      if (data.gameState) {
+        applyGameState(data.gameState);
+      } else {
+        // Fallback to refresh if no gameState returned
+        await refreshGameState();
+      }
+
       return data.eventDescription || null;
 
     } catch (err: any) {
@@ -220,9 +262,10 @@ export function useGame() {
       setLoading(false);
       setCurrentAction(null);
 
+      // Keep delayed refresh as safety backup
       setTimeout(() => refreshGameState(), 2000);
     }
-  }, [wallet, sessionActive, refreshGameState]);
+  }, [wallet, sessionActive, refreshGameState, applyGameState]);
 
   // Settle game – no alert, instead return data via callback
   const settleGame = useCallback(async (onSettlementComplete?: (data: any) => void) => {
