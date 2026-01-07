@@ -672,6 +672,14 @@ backgroundAttachment: "fixed",
 
 )}
 
+{/* LOADING INDICATOR */}
+{loading && (
+  <div className="loading-chip">
+    <div className="loading-dot" />
+    <span>{currentAction || "Loading..."}</span>
+  </div>
+)}
+
 
 
 {/* START SCREEN - Not connected - uses home.png */}
