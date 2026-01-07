@@ -74,7 +74,24 @@
       "dopewars",
       "ice"
     ],
-    "imageUrl": "https://www.dopewarsonbase.xyz/og.png",
-    "buttonTitle": "Play DopeWars"
+    "heroImageUrl": "https://www.dopewarsonbase.xyz/hero.png",
+    "tagline": "Hustle, trade , win ICE",
+    "ogTitle": "DopeWars on Base",
+    "ogDescription": "A turn-based onchain strategy game with daily ICE rewards.",
+    "ogImageUrl": "https://www.dopewarsonbase.xyz/og.png",
+    "screenshotUrls": [
+      "https://www.dopewarsonbase.xyz/screenshot1.png",
+      "https://www.dopewarsonbase.xyz/screenshot2.png",
+      "https://www.dopewarsonbase.xyz/screenshot3.png"
+    ],
+    "requiredChains": [
+      "eip155:8453"
+    ],
+    "requiredCapabilities": [
+      "wallet.getEthereumProvider",
+      "actions.ready",
+      "actions.signIn",
+      "actions.openUrl"
+    ]
   }
 }
