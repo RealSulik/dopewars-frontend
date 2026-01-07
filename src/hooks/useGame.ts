@@ -3,7 +3,6 @@ import { useState, useCallback, useEffect } from "react";
 import { ethers } from "ethers";
 
 const API_BASE = "https://dopewars-backend.vercel.app/api";
-// const API_BASE = "http://localhost:3000/api"; // For local testing
 
 // Contract details
 const CONTRACT_ADDRESS = "0x58b200A5ac031DD6245ffc63E0A247AEe39ec609";
@@ -57,8 +56,6 @@ export function useGame() {
       const address = accounts[0];
       const ethProvider = new ethers.BrowserProvider(window.ethereum);
       
-      console.log("✅ Wallet connected:", address);
-      
       setWallet(address);
       setProvider(ethProvider);
     } catch (err: any) {
@@ -91,9 +88,7 @@ export function useGame() {
         throw new Error(data.error || "Failed to start session");
       }
 
-      console.log("✅ Session started");
       setSessionActive(true);
-      
       await refreshGameState();
       
     } catch (err: any) {
@@ -121,45 +116,7 @@ export function useGame() {
         return;
       }
 
-      const state = data.gameState;
-      
-      setPlayerData({
-        cash: state.cash,
-        location: state.location,
-        daysPlayed: state.daysPlayed,
-        lastEventDescription: state.lastEventDescription,
-        netWorthGoal: state.netWorthGoal,
-        currentNetWorth: state.currentNetWorth,
-        
-        debt: state.debt,
-        bankBalance: state.bankBalance,
-        trenchcoatCapacity: state.trenchcoatCapacity,
-        health: state.health,
-        hasGun: state.hasGun,
-        coatUpgrades: state.coatUpgrades,
-        
-        copEncounterPending: state.copEncounterPending,
-        coatOfferPending: state.coatOfferPending,
-        wonAtDay: state.wonAtDay,
-      });
-
-      const invArr: any[] = [];
-      const priceArr: number[] = [];
-      
-      for (let i = 0; i < 4; i++) {
-        priceArr.push(state.prices[i]);
-        invArr.push({ 
-          name: drugNames[i], 
-          amount: state.inventory[i], 
-          price: state.prices[i] 
-        });
-      }
-
-      setInventory(invArr);
-      setPrices(priceArr);
-      setIce(state.totalIce);
-      
-      setSessionActive(true); // Ensure session is marked active if state exists
+      applyGameState(data.gameState);
       
     } catch (err) {
       console.warn("Failed to refresh game state:", err);
@@ -194,14 +151,11 @@ export function useGame() {
       wonAtDay: state.wonAtDay,
     });
 
-    const invArr: any[] = [];
-    for (let i = 0; i < 4; i++) {
-      invArr.push({
-        name: drugNames[i],
-        amount: state.inventory[i],
-        price: state.prices[i]
-      });
-    }
+    const invArr = drugNames.map((name, i) => ({
+      name,
+      amount: state.inventory[i],
+      price: state.prices[i]
+    }));
 
     setInventory(invArr);
     setPrices(state.prices);
@@ -209,7 +163,7 @@ export function useGame() {
     setSessionActive(true);
   }, [drugNames]);
 
-  // Generic action handler - returns eventDescription for caller to check
+  // Generic action handler (BLOCKING - for Travel, Hustle, etc.)
   const sendAction = useCallback(async (
     label: string,
     action: string,
@@ -245,12 +199,8 @@ export function useGame() {
         throw new Error(data.error || "Action failed");
       }
 
-      // Use returned gameState directly if available (faster!)
       if (data.gameState) {
         applyGameState(data.gameState);
-      } else {
-        // Fallback to refresh if no gameState returned
-        await refreshGameState();
       }
 
       return data.eventDescription || null;
@@ -261,20 +211,43 @@ export function useGame() {
     } finally {
       setLoading(false);
       setCurrentAction(null);
-
-      // Keep delayed refresh as safety backup
-      setTimeout(() => refreshGameState(), 2000);
     }
   }, [wallet, sessionActive, refreshGameState, applyGameState]);
 
-  // Settle game – no alert, instead return data via callback
-  const settleGame = useCallback(async (onSettlementComplete?: (data: any) => void) => {
-    if (!wallet || !provider || !sessionActive) {
-      showError("Session not active", "settlement");
-      return;
-    }
+  // --- SILENT ACTION (NON-BLOCKING - for instant trades) ---
+  const sendTradeAction = useCallback(async (
+    action: string,
+    params: any = {}
+  ): Promise<void> => {
+    if (!wallet || !sessionActive) return;
 
-    let settlementData: any = null;
+    try {
+      const response = await fetch(`${API_BASE}/game/action`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          playerAddress: wallet,
+          action,
+          ...params,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success && data.gameState) {
+        applyGameState(data.gameState);
+      } else if (!data.success) {
+        // Rollback sync on error
+        refreshGameState();
+        if (data.error) showError(data.error);
+      }
+    } catch (err) {
+      refreshGameState(); // Rollback sync on network error
+    }
+  }, [wallet, sessionActive, applyGameState, refreshGameState]);
+
+  // Settle game
+  const settleGame = useCallback(async (onSettlementComplete?: (data: any) => void) => {
+    if (!wallet || !provider || !sessionActive) return;
 
     try {
       setLoading(true);
@@ -287,39 +260,20 @@ export function useGame() {
       });
 
       const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error || "Settlement preparation failed");
-      }
-
-      settlementData = data;
-
-      if (!data.signature || !data.runId || data.finalNetWorth === undefined || data.daysPlayed === undefined) {
-        throw new Error("Invalid settlement data from server.");
-      }
+      if (!data.success) throw new Error(data.error || "Settlement preparation failed");
 
       setCurrentAction("Confirm transaction in your wallet...");
       
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-      let tx;
-      try {
-        tx = await contract.settleRun(
-          wallet,
-          BigInt(data.finalNetWorth),
-          BigInt(data.daysPlayed),
-          data.runId,
-          data.signature
-        );
-      } catch (err: any) {
-        if (err.code === 4001 || err.code === "ACTION_REJECTED") {
-          throw new Error("Transaction cancelled");
-        }
-        throw new Error("Transaction failed: " + (err.reason || err.message));
-      }
-
-      console.log("⏳ Transaction sent:", tx.hash);
+      const tx = await contract.settleRun(
+        wallet,
+        BigInt(data.finalNetWorth),
+        BigInt(data.daysPlayed),
+        data.runId,
+        data.signature
+      );
       
       setCurrentAction("Waiting for blockchain confirmation...");
       
@@ -329,49 +283,24 @@ export function useGame() {
           setTimeout(() => reject(new Error("Transaction confirmation timeout")), TX_TIMEOUT)
         )
       ]) as any;
-      
-      console.log("✅ Settlement confirmed on-chain:", receipt.hash);
 
-      // ✅ CHANGED: Send gameRunId (database ID) instead of runId (blockchain hash)
-      try {
-        await fetch(`${API_BASE}/game/settle`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            gameRunId: settlementData.gameRunId,  // ✅ CHANGED: Use database ID
-            txHash: receipt.hash,
-            playerAddress: wallet,
-          }),
-        });
-        console.log("✅ Backend notified — leaderboard will update soon");
-      } catch (patchErr) {
-        console.warn("⚠️ Failed to notify backend (PATCH), but on-chain settlement succeeded:", patchErr);
-      }
+      await fetch(`${API_BASE}/game/settle`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          gameRunId: data.gameRunId,
+          txHash: receipt.hash,
+          playerAddress: wallet,
+        }),
+      });
 
-      // Instead of alert, call the callback with data
-      if (onSettlementComplete) {
-        onSettlementComplete(settlementData);
-      }
+      if (onSettlementComplete) onSettlementComplete(data);
 
-      // Reset session
       setSessionActive(false);
       setPlayerData(null);
-      setInventory([]);
-      setPrices([]);
 
     } catch (err: any) {
-      console.error("Settlement error:", err);
-      
-      let userMessage = err.message;
-      if (err.message.includes("timeout")) {
-        userMessage = "Transaction is taking longer than expected. Check your wallet to see if it completed.";
-      } else if (err.message.includes("insufficient funds")) {
-        userMessage = "Not enough ETH for gas. Transaction needs tiny gas buffer.";
-      } else if (err.message.includes("cancelled")) {
-        userMessage = "Transaction cancelled. Your game is still saved.";
-      }
-      
-      showError(userMessage, "settlement");
+      showError(err.message || "Settlement failed", "settlement");
     } finally {
       setLoading(false);
       setCurrentAction(null);
@@ -389,38 +318,61 @@ export function useGame() {
     currentAction,
     errorMessage,
     errorContext,
-
     connectWallet,
     startSession,
-    
+    settleGame,
+
+    buy: async (drugIndex: number, amount: number) => {
+      if (!playerData || !inventory[drugIndex]) return;
+      
+      const cost = inventory[drugIndex].price * amount;
+      const totalDrugs = inventory.reduce((sum, d) => sum + (d.amount || 0), 0);
+      
+      if (cost > playerData.cash) return showError("Not enough cash!");
+      if (totalDrugs + amount > playerData.trenchcoatCapacity) return showError("Coat is full!");
+
+      // INSTANT UI UPDATE
+      setPlayerData((prev: any) => ({ ...prev, cash: prev.cash - cost }));
+      setInventory((prev: any) => {
+        const next = [...prev];
+        next[drugIndex] = { ...next[drugIndex], amount: next[drugIndex].amount + amount };
+        return next;
+      });
+
+      // BACKGROUND SYNC (No blocking, no loading state)
+      sendTradeAction("buy", { drugIndex, amount });
+    },
+
+    sell: async (drugIndex: number, amount: number) => {
+      if (!playerData || !inventory[drugIndex]) return;
+      if (amount > inventory[drugIndex].amount) return showError("Not enough units!");
+
+      const gain = inventory[drugIndex].price * amount;
+
+      // INSTANT UI UPDATE
+      setPlayerData((prev: any) => ({ ...prev, cash: prev.cash + gain }));
+      setInventory((prev: any) => {
+        const next = [...prev];
+        next[drugIndex] = { ...next[drugIndex], amount: next[drugIndex].amount - amount };
+        return next;
+      });
+
+      // BACKGROUND SYNC (No blocking, no loading state)
+      sendTradeAction("sell", { drugIndex, amount });
+    },
+
     endDay: () => sendAction("Ending day...", "endDay"),
-    buy: (drugIndex: number, amount: number) => 
-      sendAction("Buying...", "buy", { drugIndex, amount }),
-    sell: (drugIndex: number, amount: number) => 
-      sendAction("Selling...", "sell", { drugIndex, amount }),
     hustle: () => sendAction("Hustling...", "hustle"),
     stash: () => sendAction("Stashing...", "stash"),
     claimDailyIce: () => sendAction("Claiming ICE...", "claimDailyIce"),
-    travelTo: (location: number) => 
-      sendAction("Traveling...", "travelTo", { location }),
-    
-    depositBank: (amount: number) =>
-      sendAction("Depositing...", "depositBank", { amount }),
-    withdrawBank: (amount: number) =>
-      sendAction("Withdrawing...", "withdrawBank", { amount }),
-    payLoan: (amount: number) =>
-      sendAction("Paying loan...", "payLoan", { amount }),
-    
-    acceptCoatOffer: () => 
-      sendAction("Accepting coat upgrade...", "acceptCoatOffer"),
-    declineCoatOffer: () => 
-      sendAction("Declining coat upgrade...", "declineCoatOffer"),
-    
+    travelTo: (location: number) => sendAction("Traveling...", "travelTo", { location }),
+    depositBank: (amount: number) => sendAction("Depositing...", "depositBank", { amount }),
+    withdrawBank: (amount: number) => sendAction("Withdrawing...", "withdrawBank", { amount }),
+    payLoan: (amount: number) => sendAction("Paying loan...", "payLoan", { amount }),
+    acceptCoatOffer: () => sendAction("Accepting coat...", "acceptCoatOffer"),
+    declineCoatOffer: () => sendAction("Declining coat...", "declineCoatOffer"),
     buyGun: () => sendAction("Buying gun...", "buyGun"),
-    
     fightCop: () => sendAction("Fighting...", "fightCop"),
     runFromCop: () => sendAction("Running...", "runFromCop"),
-    
-    settleGame, // Now accepts optional callback
   };
 }
