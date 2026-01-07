@@ -1,7 +1,7 @@
 {
   "version": "1",
   "name": "DopeWars on Base",
-  "subtitle": "Hustle, trade & survive",
+  "subtitle": "Hustle, trade , win ICE",
   "description": "A turn-based onchain strategy game with daily ICE rewards.",
   "iconUrl": "https://www.dopewarsonbase.xyz/icon.png",
   "splashImageUrl": "https://www.dopewarsonbase.xyz/splash.png",
@@ -71,6 +71,8 @@
       "strategy",
       "dopewars",
       "ice"
-    ]
+    ],
+    "imageUrl": "https://www.dopewarsonbase.xyz/og.png",
+    "buttonTitle": "Play DopeWars"
   }
 }
