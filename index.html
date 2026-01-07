@@ -3,39 +3,39 @@
   <head>
     <meta charset="UTF-8" />
 
-    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
 
-    <!-- Responsive layout -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
+    <meta name="theme-color" content="#050014" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <!-- Page Title -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+
     <title>DopeWars on Base</title>
 
-    <!-- Base App ID (Verified) -->
     <meta name="base:app_id" content="695c03924d3a403912ed8e8b" />
 
-    <!-- Description -->
     <meta 
       name="description" 
-      content="Grow your stash, survive random events, hit 1000K net worth, and climb the leaderboard. Earn ICE as you play."
+      content="Hustle, trade & survive. Grow your stash, hit 1000K net worth, and climb the leaderboard. Earn ICE as you play."
     />
 
-    <!-- ⭐ Open Graph (improves Base App + social previews) -->
+    <meta property="og:type" content="website" />
     <meta property="og:title" content="DopeWars on Base" />
     <meta 
       property="og:description" 
-      content="Grow your stash, survive random events, hit 1000K net worth, and climb the leaderboard. Earn ICE as you play." 
+      content="Hustle, trade & survive. Grow your stash, hit 1000K net worth, and climb the leaderboard. Earn ICE as you play." 
     />
-    <meta name="theme-color" content="#000000" />
+    <meta property="og:image" content="https://www.dopewarsonbase.xyz/og.png" />
+    <meta property="og:url" content="https://www.dopewarsonbase.xyz/" />
 
-    <!-- ⭐ Farcaster Mini App Embed Preview -->
     <meta
       name="fc:miniapp"
       content='{
         "version": "next",
-        "imageUrl": "https://www.dopewarsonbase.xyz/DopeWars_onbase.png",
+        "name": "DopeWars on Base",
+        "imageUrl": "https://www.dopewarsonbase.xyz/og.png",
         "button": {
           "title": "Play DopeWars",
           "action": {
@@ -47,7 +47,7 @@
     />
   </head>
 
-  <body>
+  <body style="background-color: #050014; margin: 0; padding: 0; overflow: hidden;">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
