@@ -1500,7 +1500,7 @@ title={holding > 0 ? "Sell everything you're holding" : "Max you can afford (cas
 
 onClick={() => buy(i, qty)}
 
-disabled={loading || price === 0}
+disabled={price === 0}
 
 className="flex-1 px-3 py-1 rounded-full text-sm font-semibold neon-button cyber-sweep neon-button--buy disabled:opacity-50"
 
@@ -1514,8 +1514,7 @@ Buy
 
 onClick={() => sell(i, qty)}
 
-disabled={!canSell || loading}
-
+disabled={!canSell}
 className={`flex-1 px-3 py-1 rounded-full text-sm font-semibold neon-button cyber-sweep ${
 
 canSell
