@@ -40,7 +40,6 @@
       "actions.signIn",
       "actions.openUrl"
     ]
-    "noindex": false  // ← added (false = allow indexing/search)
 
   },  "frame": {
     "version": "1",
