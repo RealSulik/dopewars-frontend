@@ -326,7 +326,12 @@ setShowCopModal(true);
 
 }, [playerData?.copEncounterPending]);
 
-
+// Death check on page load/refresh - show death modal if health is 0
+useEffect(() => {
+  if (sessionActive && playerData?.health !== undefined && playerData.health <= 0) {
+    setShowDeathModal(true);
+  }
+}, [sessionActive, playerData?.health]);
 
 // NEW: Day 30 settlement trigger (unchanged)
 
@@ -1613,13 +1618,13 @@ cash === 0
 
 <button
 
-onClick={() => settleGame((data) => {
-
-setEarlySettlementData(data);
-
-setShowEarlySettlementModal(true);
-
-})}
+onClick={() => {
+  const savedStats = { cash, bankBalance, debt, currentNetWorth };
+  settleGame((data) => {
+    setEarlySettlementData({ ...data, ...savedStats });
+    setShowEarlySettlementModal(true);
+  });
+}}
 
 disabled={loading || days < 5}
 
@@ -2380,10 +2385,12 @@ ${formatMoney(playerData?.currentNetWorth || 0)}
 
 onClick={() => {
 
+const savedStats = { cash, bankBalance, debt, currentNetWorth };
 setShowDay30Modal(false);
-
-settleGame();
-
+settleGame((data) => {
+  setEarlySettlementData({ ...data, ...savedStats });
+  setShowEarlySettlementModal(true);
+});
 }}
 
 disabled={loading}
@@ -2445,9 +2452,10 @@ Officer Hardass got you. Your run is over.
 
 <button
 onClick={() => {
+  const savedStats = { cash, bankBalance, debt, currentNetWorth };
   setShowDeathModal(false);
   settleGame((data) => {
-    setEarlySettlementData(data);
+    setEarlySettlementData({ ...data, ...savedStats });
     setShowEarlySettlementModal(true);
   });
 }}
@@ -2496,17 +2504,17 @@ You chose to settle before Day 30.
 
 <div className="grid grid-cols-2 gap-2 text-sm">
 
-<div>Cash:</div><div className="text-right text-green-400">${formatMoney(cash || 0)}</div>
+<div>Cash:</div><div className="text-right text-green-400">${formatMoney(earlySettlementData.cash || 0)}</div>
 
-<div>Bank:</div><div className="text-right text-blue-400">${formatMoney(bankBalance || 0)}</div>
+<div>Bank:</div><div className="text-right text-blue-400">${formatMoney(earlySettlementData.bankBalance || 0)}</div>
 
-<div>Debt:</div><div className="text-right text-red-400">${formatMoney(debt || 0)}</div>
+<div>Debt:</div><div className="text-right text-red-400">${formatMoney(earlySettlementData.debt || 0)}</div>
 
 <div className="font-bold">Net Worth:</div>
 
 <div className="text-right font-bold text-yellow-400">
 
-${formatMoney(earlySettlementData.finalNetWorth || currentNetWorth)}
+${formatMoney(earlySettlementData.finalNetWorth || earlySettlementData.currentNetWorth || 0)}
 
 </div>
 
@@ -2641,11 +2649,12 @@ ${formatMoney(currentNetWorth)}
 
 onClick={() => {
 
+const savedStats = { cash, bankBalance, debt, currentNetWorth };
 setShowMillionModal(false);
 
 settleGame((data) => {
 
-setEarlySettlementData(data);
+setEarlySettlementData({ ...data, ...savedStats });
 
 setShowEarlySettlementModal(true);
 
