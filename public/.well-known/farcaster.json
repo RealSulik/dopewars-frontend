@@ -1,14 +1,14 @@
 {
   "version": "1",
   "name": "DopeWars on Base",
-  "subtitle": "Hustle, trade & survive",
-  "description": "A turn-based onchain strategy game with daily ICE rewards.",
+  "subtitle": "Hustle trade and survive on Base",
+  "description": "A turn-based onchain strategy game. Buy low, sell high, manage debt, fight cops and earn daily ICE rewards.",
   "iconUrl": "https://www.dopewarsonbase.xyz/icon.png",
   "splashImageUrl": "https://www.dopewarsonbase.xyz/splash.png",
   "splashBackgroundColor": "#050014",
   "homeUrl": "https://www.dopewarsonbase.xyz/",
   "primaryCategory": "games",
-  "tags": ["game", "onchain", "base", "strategy", "dopewars", "ice"],
+  "tags": ["game", "onchain", "base", "strategy", "dopewars", "ice", "trading", "cyberpunk"],
 
   "accountAssociation": {
     "header": "eyJmaWQiOjU2OTE4MSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDA3RTU1Qzc0NzBkMDUwRjREY0NiNUU4MjU2YTQ0NjE4NGNkQWVFOTcifQ",
@@ -23,17 +23,17 @@
     "homeUrl": "https://www.dopewarsonbase.xyz/",
     "splashImageUrl": "https://www.dopewarsonbase.xyz/splash.png",
     "splashBackgroundColor": "#050014",
-    "subtitle": "Hustle, trade & survive",
-    "description": "A turn-based onchain strategy game with daily ICE rewards.",
+    "subtitle": "Hustle trade and survive on Base",
+    "description": "A turn-based onchain strategy game. Buy low, sell high, manage debt, fight cops and earn daily ICE rewards.",
     "primaryCategory": "games",
-    "tags": ["game", "onchain", "base", "strategy", "dopewars", "ice"],
-    "heroImageUrl": "https://www.dopewarsonbase.xyz/hero.png",        
-    "tagline": "Hustle, trade & survive",
+    "tags": ["game", "onchain", "base", "strategy", "dopewars", "ice", "trading", "cyberpunk"],
+    "heroImageUrl": "https://www.dopewarsonbase.xyz/hero.png",
+    "tagline": "Hustle trade and survive on Base",
     "ogTitle": "DopeWars on Base",
-    "ogDescription": "A turn-based onchain strategy game with daily ICE rewards.",
-    "ogImageUrl": "https://www.dopewarsonbase.xyz/og.png",            
+    "ogDescription": "A turn-based onchain strategy game. Buy low, sell high, manage debt, fight cops and earn daily ICE rewards.",
+    "ogImageUrl": "https://www.dopewarsonbase.xyz/og.png",
     "screenshotUrls": [
-      "https://www.dopewarsonbase.xyz/screenshot1.png",              
+      "https://www.dopewarsonbase.xyz/screenshot1.png",
       "https://www.dopewarsonbase.xyz/screenshot2.png",
       "https://www.dopewarsonbase.xyz/screenshot3.png"
     ],
@@ -42,8 +42,14 @@
       "wallet.getEthereumProvider",
       "actions.ready",
       "actions.signIn",
-      "actions.openUrl"
-    ]
+      "actions.openUrl",
+      "actions.composeCast",
+      "actions.addMiniApp",
+      "haptics.impactOccurred",
+      "haptics.notificationOccurred",
+      "haptics.selectionChanged"
+    ],
+    "noindex": false  
   },
 
   "frame": {
@@ -54,6 +60,8 @@
     "splashImageUrl": "https://www.dopewarsonbase.xyz/splash.png",
     "splashBackgroundColor": "#050014",
     "primaryCategory": "games",
-"tags": ["game", "onchain", "base", "strategy", "dopewars", "ice"],
+    "tags": ["game", "onchain", "base", "strategy", "dopewars", "ice"],
+    "webhookUrl": "https://dopewars-backend.vercel.app/api/webhooks",
+    "noindex": false
   }
 }
