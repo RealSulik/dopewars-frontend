@@ -151,6 +151,8 @@ export function useGame() {
       copEncounterPending: state.copEncounterPending,
       coatOfferPending: state.coatOfferPending,
       wonAtDay: state.wonAtDay,
+      hustlesUsed: state.hustlesUsed ?? 0,
+      stashesUsed: state.stashesUsed ?? 0,
     });
 
     const invArr = drugNames.map((name, i) => ({

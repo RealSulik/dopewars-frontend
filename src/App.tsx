@@ -1081,7 +1081,7 @@ Disconnect
 
 <div className="text-xs text-gray-400">Net Worth</div>
 
-<div className="text-purple-400 font-bold text-base md:text-lg">${formatMoney(cash + bankBalance - debt)}</div>
+<div className="text-purple-400 font-bold text-base md:text-lg">${formatMoney(currentNetWorth)}</div>
 
 </div>
 
@@ -1437,7 +1437,7 @@ isMobile ? "h-auto" : "h-[198px]"
 
 <div className="grid grid-cols-2 text-sm gap-y-1 mb-2">
 
-<span className={`opacity-80 ${pendingDrugs.has(i) ? 'pending-flash' : ''}`}>
+<span className={`opacity-80 tabular-nums ${pendingDrugs.has(i) ? 'pending-flash' : ''}`}>
   Holding: {holding} units
 </span>
 <span className="opacity-80 text-right">Price: ${formatMoney(price)}</span>
@@ -1583,13 +1583,13 @@ className="px-5 py-2 rounded font-semibold neon-button cyber-sweep bg-blue-600"
 
 onClick={hustle}
 
-disabled={loading || cash !== 0}
+disabled={loading || cash !== 0 || (playerData?.hustlesUsed ?? 0) >= 3}
 
-title={cash !== 0 ? "Cash must be 0 to Hustle" : ""}
+title={cash !== 0 ? "Cash must be 0 to Hustle" : (playerData?.hustlesUsed ?? 0) >= 3 ? "Max hustles used" : ""}
 
 className={`px-5 py-2 rounded font-semibold neon-button cyber-sweep ${
 
-cash === 0
+cash === 0 && (playerData?.hustlesUsed ?? 0) < 3
 
 ? "bg-purple-700"
 
@@ -1599,7 +1599,7 @@ cash === 0
 
 >
 
-💪 Hustle (0/3)
+💪 Hustle ({playerData?.hustlesUsed ?? 0}/3)
 
 </button>
 
@@ -1607,13 +1607,13 @@ cash === 0
 
 onClick={stash}
 
-disabled={loading || cash !== 0}
+disabled={loading || cash !== 0 || (playerData?.stashesUsed ?? 0) >= 3}
 
-title={cash !== 0 ? "Cash must be 0 to Stash" : ""}
+title={cash !== 0 ? "Cash must be 0 to Stash" : (playerData?.stashesUsed ?? 0) >= 3 ? "Max stashes used" : ""}
 
 className={`px-5 py-2 rounded font-semibold neon-button cyber-sweep ${
 
-cash === 0
+cash === 0 && (playerData?.stashesUsed ?? 0) < 3
 
 ? "bg-pink-600"
 
@@ -1623,7 +1623,7 @@ cash === 0
 
 >
 
-🎲 Find Stash (0/3)
+🎲 Find Stash ({playerData?.stashesUsed ?? 0}/3)
 
 </button>
 
