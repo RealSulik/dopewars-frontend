@@ -197,7 +197,10 @@ const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
 
 const [quantities, setQuantities] = useState<number[]>(() => [1, 1, 1, 1]);
 
-
+// Reset quantities to 1 when day changes (end day or travel)
+useEffect(() => {
+  setQuantities([1, 1, 1, 1]);
+}, [playerData?.daysPlayed]);
 
 // Event popup logic — FIXED cop escape (coat image is now in modal only)
 
@@ -1347,11 +1350,13 @@ const maxSell = holding;
 
 function updateQtyRaw(v: string) {
 
-const num = Number(v);
+const integerPart = v.split('.')[0].replace(/[^0-9]/g, '');
+
+const num = parseInt(integerPart, 10);
 
 const next: number[] = [...quantities];
 
-next[i] = num > 0 ? num : 1;
+next[i] = !isNaN(num) && num >= 0 ? num : 0;
 
 setQuantities(next);
 
