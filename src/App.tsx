@@ -111,7 +111,6 @@ travelTo,
 buy,
 
 sell,
-pendingTrade, 
 pendingDrugs,
 pendingCash,
 
