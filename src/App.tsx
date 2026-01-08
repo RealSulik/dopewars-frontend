@@ -111,6 +111,9 @@ travelTo,
 buy,
 
 sell,
+pendingTrade, 
+pendingDrugs,
+pendingCash,
 
 
 // V2 ACTIONS
@@ -1054,8 +1057,9 @@ Disconnect
 
 <div className="text-xs text-gray-400">Cash</div>
 
-<div className="text-green-400 font-bold text-base md:text-lg">${formatMoney(cash)}</div>
-
+<div className={`text-green-400 font-bold text-base md:text-lg ${pendingCash ? 'pending-flash' : ''}`}>  {/* ← CHANGED TO pendingCash */}
+  ${formatMoney(cash)}
+</div>
 </div>
 
 <div>
@@ -1434,8 +1438,9 @@ isMobile ? "h-auto" : "h-[198px]"
 
 <div className="grid grid-cols-2 text-sm gap-y-1 mb-2">
 
-<span className="opacity-80">Holding: {holding} units</span>
-
+<span className={`opacity-80 ${pendingDrugs.has(i) ? 'pending-flash' : ''}`}>
+  Holding: {holding} units
+</span>
 <span className="opacity-80 text-right">Price: ${formatMoney(price)}</span>
 
 <span className="opacity-90">Qty:</span>

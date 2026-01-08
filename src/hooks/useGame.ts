@@ -17,7 +17,9 @@ export function useGame() {
   const [wallet, setWallet] = useState<string | null>(null);
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
   const [sessionActive, setSessionActive] = useState(false);
-  
+  const [pendingCash, setPendingCash] = useState(false);          // ← NEW: for cash highlight
+  const [pendingDrugs, setPendingDrugs] = useState<Set<number>>(new Set());  // ← NEW: for specific drugs
+
   const [playerData, setPlayerData] = useState<any>(null);
   const [inventory, setInventory] = useState<any[]>([]);
   const [prices, setPrices] = useState<number[]>([]);
@@ -321,6 +323,8 @@ export function useGame() {
     connectWallet,
     startSession,
     settleGame,
+    pendingCash,    // ← NEW
+    pendingDrugs,   // ← NEW
 
     buy: async (drugIndex: number, amount: number) => {
       if (!playerData || !inventory[drugIndex]) return;
@@ -339,7 +343,17 @@ export function useGame() {
         return next;
       });
 
-      // BACKGROUND SYNC (No blocking, no loading state)
+      // ← NEW: Precise pending feedback
+      setPendingCash(true);
+      setPendingDrugs(new Set([drugIndex]));
+
+      setTimeout(() => {
+        setPendingCash(false);
+        setPendingDrugs(new Set());
+        refreshGameState(); // safety net
+      }, 1000);
+
+      // BACKGROUND SYNC
       sendTradeAction("buy", { drugIndex, amount });
     },
 
@@ -357,7 +371,17 @@ export function useGame() {
         return next;
       });
 
-      // BACKGROUND SYNC (No blocking, no loading state)
+      // ← NEW: Precise pending feedback
+      setPendingCash(true);
+      setPendingDrugs(new Set([drugIndex]));
+
+      setTimeout(() => {
+        setPendingCash(false);
+        setPendingDrugs(new Set());
+        refreshGameState(); // safety net
+      }, 1000);
+
+      // BACKGROUND SYNC
       sendTradeAction("sell", { drugIndex, amount });
     },
 
