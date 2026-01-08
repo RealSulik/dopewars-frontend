@@ -1437,8 +1437,8 @@ isMobile ? "h-auto" : "h-[198px]"
 
 <div className="grid grid-cols-2 text-sm gap-y-1 mb-2">
 
-<span className={`opacity-80 tabular-nums ${pendingDrugs.has(i) ? 'pending-flash' : ''}`}>
-  Holding: {holding} units
+<span className={`opacity-80 ${pendingDrugs.has(i) ? 'pending-flash' : ''}`}>
+  Holding: {holding}<br />units
 </span>
 <span className="opacity-80 text-right">Price: ${formatMoney(price)}</span>
 
